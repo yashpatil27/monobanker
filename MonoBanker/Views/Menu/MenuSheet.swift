@@ -8,6 +8,7 @@ import SwiftUI
 struct MenuSheet: View {
     let onShowHistory: () -> Void
     let onAddPlayer: () -> Void
+    let onRearrange: () -> Void
     let onRestart: () -> Void
     let onEndGame: () -> Void
 
@@ -35,6 +36,14 @@ struct MenuSheet: View {
                         onAddPlayer()
                     } label: {
                         row(icon: "person.badge.plus", title: "Add Player", tint: .textPrimary)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        HapticManager.shared.lightImpact()
+                        onRearrange()
+                    } label: {
+                        row(icon: "square.grid.2x2", title: "Rearrange Players", tint: .textPrimary)
                     }
                     .buttonStyle(.plain)
 

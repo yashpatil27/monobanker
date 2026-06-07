@@ -14,6 +14,9 @@ struct ParticipantCard: View {
     let isDragging: Bool     // this card is being dragged
     let isTargeted: Bool     // this card is a valid drop target being hovered
     let isInactive: Bool     // this card cannot be a target (i.e. it's the dragged card)
+    var isWobbling: Bool = false                  // iOS-homescreen-style wobble (rearrange mode)
+    var showRemove: Bool = false                  // show the corner remove X (rearrange mode)
+    var onRemove: (() -> Void)? = nil             // tap handler for the remove X
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
@@ -66,15 +69,40 @@ struct ParticipantCard: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(cardBackground)
         .overlay(targetOverlay)
+        .overlay(alignment: .topTrailing) { removeButton }
         .scaleEffect(isDragging ? 1.04 : (isTargeted ? 1.02 : 1.0))
         .opacity(isInactive && !isDragging ? 0.4 : 1.0)
         .shadow(color: shadowColor, radius: isDragging ? 18 : 0, x: 0, y: isDragging ? 8 : 0)
+        .modifier(WobbleModifier(isActive: isWobbling))
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
         .animation(.easeInOut(duration: 0.15), value: isTargeted)
         .animation(.easeInOut(duration: 0.15), value: isInactive)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityHint("Drag onto another card to pay")
+    }
+
+    @ViewBuilder
+    private var removeButton: some View {
+        if showRemove, let onRemove {
+            Button {
+                HapticManager.shared.lightImpact()
+                onRemove()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 22, height: 22)
+                    .background(
+                        Circle()
+                            .fill(Color.black)
+                            .overlay(Circle().stroke(Color.white.opacity(0.85), lineWidth: 1.5))
+                    )
+            }
+            .buttonStyle(.plain)
+            .offset(x: 7, y: -7)
+            .transition(.scale.combined(with: .opacity))
+        }
     }
 
     private var accessibilityDescription: String {
@@ -125,6 +153,25 @@ struct ParticipantCard: View {
 
     private var shadowColor: Color {
         isDragging ? Color.brandPrimary.opacity(0.35) : .clear
+    }
+}
+
+// MARK: - Wobble modifier (iOS home-screen-style)
+
+private struct WobbleModifier: ViewModifier {
+    let isActive: Bool
+    /// Per-instance phase offset so cards wobble independently rather than in lockstep.
+    private let phaseOffset: Double = Double.random(in: 0..<(.pi * 2))
+
+    func body(content: Content) -> some View {
+        if isActive {
+            TimelineView(.animation) { context in
+                let t = context.date.timeIntervalSinceReferenceDate * 10 + phaseOffset
+                content.rotationEffect(.degrees(sin(t) * 1.3))
+            }
+        } else {
+            content
+        }
     }
 }
 

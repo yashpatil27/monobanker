@@ -20,15 +20,28 @@ struct GameView: View {
     @State private var showingRestartConfirm = false
     @State private var showingAddPlayer = false
 
+    // Rearrange mode
+    @State private var isRearranging = false
+    @State private var reorderDraggedID: UUID?
+    @State private var reorderTouchLocation: CGPoint?
+    /// Live preview of the reordered player list while a reorder drag is in flight.
+    /// `nil` outside of an active reorder — fall back to `session.players` for rendering.
+    @State private var reorderedPlayers: [Player]?
+
+    /// During a reorder drag, render from the in-flight preview order instead of session.
+    private var effectivePlayers: [Player] {
+        reorderedPlayers ?? session.players
+    }
+
     /// Player rows switch from 2 to 3 columns once there are more than 6 players,
     /// so every card stays on screen without scrolling.
     private var columnCount: Int {
-        session.players.count > 6 ? 3 : 2
+        effectivePlayers.count > 6 ? 3 : 2
     }
 
     private var playerRows: [[Participant]] {
         let c = columnCount
-        let items = session.players.map { Participant.player($0.id) }
+        let items = effectivePlayers.map { Participant.player($0.id) }
         return stride(from: 0, to: items.count, by: c).map {
             Array(items[$0..<min($0 + c, items.count)])
         }
@@ -93,6 +106,10 @@ struct GameView: View {
                     showingMenu = false
                     showingAddPlayer = true
                 },
+                onRearrange: {
+                    showingMenu = false
+                    enterRearrangeMode()
+                },
                 onRestart: {
                     showingMenu = false
                     showingRestartConfirm = true
@@ -102,7 +119,7 @@ struct GameView: View {
                     showingEndConfirm = true
                 }
             )
-            .presentationDetents([.height(360)])
+            .presentationDetents([.height(420)])
             .presentationBackground(.black)
         }
         .sheet(isPresented: $showingAddPlayer) {
@@ -186,6 +203,7 @@ struct GameView: View {
     }
 
     /// Top row: vertical stack of 3 buttons on the left, then Bank, then All.
+    /// In rearrange mode the side column collapses to a single Done button.
     @ViewBuilder
     private func topGridRow(
         rowH: CGFloat,
@@ -196,6 +214,37 @@ struct GameView: View {
         buttonSpacing: CGFloat
     ) -> some View {
         HStack(spacing: spacing) {
+            sideColumn(buttonSize: buttonSize, buttonSpacing: buttonSpacing)
+                .frame(width: sideColumnW, height: rowH, alignment: .center)
+
+            cardView(for: .bank, cardSize: CGSize(width: cardW, height: rowH))
+                .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+
+            cardView(for: .all, cardSize: CGSize(width: cardW, height: rowH))
+                .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+        }
+    }
+
+    @ViewBuilder
+    private func sideColumn(buttonSize: CGFloat, buttonSpacing: CGFloat) -> some View {
+        if isRearranging {
+            VStack {
+                Spacer(minLength: 0)
+                Button {
+                    HapticManager.shared.mediumImpact()
+                    exitRearrangeMode()
+                } label: {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: buttonSize * 0.45, weight: .bold))
+                        .foregroundColor(.black)
+                        .frame(width: buttonSize, height: buttonSize)
+                        .background(Circle().fill(Color.brandPrimary))
+                }
+                .buttonStyle(.plain)
+                .transition(.scale.combined(with: .opacity))
+                Spacer(minLength: 0)
+            }
+        } else {
             VStack(spacing: buttonSpacing) {
                 sideButton(systemName: "line.3.horizontal", size: buttonSize) {
                     HapticManager.shared.lightImpact()
@@ -208,13 +257,7 @@ struct GameView: View {
                     HapticManager.shared.lightImpact()
                 }
             }
-            .frame(width: sideColumnW, height: rowH, alignment: .center)
-
-            cardView(for: .bank, cardSize: CGSize(width: cardW, height: rowH))
-                .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
-
-            cardView(for: .all, cardSize: CGSize(width: cardW, height: rowH))
-                .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+            .transition(.opacity)
         }
     }
 
@@ -255,6 +298,9 @@ struct GameView: View {
     @ViewBuilder
     private func cardView(for participant: Participant, cardSize: CGSize) -> some View {
         let isTargeted = hoveredTarget == participant && draggingId != participant && draggingId != nil
+        let wobble = isRearranging && participantIsPlayer(participant)
+        let removable = wobble
+        let beingReordered = isReorderingParticipant(participant)
 
         ParticipantCard(
             participant: participant,
@@ -264,8 +310,12 @@ struct GameView: View {
             color: accentColor(for: participant),
             isDragging: false, // source card never animates; only the floating preview does
             isTargeted: isTargeted,
-            isInactive: false
+            isInactive: false,
+            isWobbling: wobble,
+            showRemove: removable,
+            onRemove: removable ? { removePlayer(participant) } : nil
         )
+        .opacity(beingReordered ? 0.0 : 1.0)
         .background(
             GeometryReader { geo in
                 Color.clear.preference(
@@ -278,10 +328,18 @@ struct GameView: View {
         .gesture(
             DragGesture(minimumDistance: 0, coordinateSpace: .named(GameView.gameViewSpace))
                 .onChanged { value in
-                    handleDragChange(participant: participant, value: value)
+                    if isRearranging {
+                        handleRearrangeChange(participant: participant, value: value)
+                    } else {
+                        handleDragChange(participant: participant, value: value)
+                    }
                 }
                 .onEnded { value in
-                    handleDragEnd(participant: participant, value: value)
+                    if isRearranging {
+                        handleRearrangeEnd(participant: participant, value: value)
+                    } else {
+                        handleDragEnd(participant: participant, value: value)
+                    }
                 }
         )
     }
@@ -290,9 +348,29 @@ struct GameView: View {
 
     @ViewBuilder
     private var floatingDragPreview: some View {
-        if let dragged = draggingId,
-           let loc = dragTouchLocation,
-           let frame = cardFrames[dragged] {
+        if let reorderID = reorderDraggedID,
+           let loc = reorderTouchLocation,
+           let player = effectivePlayers.first(where: { $0.id == reorderID }),
+           let frame = cardFrames[.player(reorderID)] {
+            // Reorder drag preview.
+            ParticipantCard(
+                participant: .player(reorderID),
+                name: player.name,
+                balance: player.balance,
+                lastChange: session.lastDelta(for: reorderID),
+                color: player.color.color,
+                isDragging: true,
+                isTargeted: false,
+                isInactive: false
+            )
+            .frame(width: frame.width, height: frame.height)
+            .shadow(color: Color.brandPrimary.opacity(0.45), radius: 22, y: 10)
+            .position(loc)
+            .allowsHitTesting(false)
+        } else if let dragged = draggingId,
+                  let loc = dragTouchLocation,
+                  let frame = cardFrames[dragged] {
+            // Pay drag preview.
             ParticipantCard(
                 participant: dragged,
                 name: session.name(for: dragged),
@@ -386,6 +464,92 @@ struct GameView: View {
             return session.lastDelta(for: id)
         }
         return nil
+    }
+
+    // MARK: - Rearrange mode
+
+    private func participantIsPlayer(_ participant: Participant) -> Bool {
+        if case .player = participant { return true }
+        return false
+    }
+
+    private func isReorderingParticipant(_ participant: Participant) -> Bool {
+        guard let id = reorderDraggedID, case .player(let pid) = participant else { return false }
+        return id == pid
+    }
+
+    private func enterRearrangeMode() {
+        HapticManager.shared.mediumImpact()
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isRearranging = true
+        }
+    }
+
+    private func exitRearrangeMode() {
+        // Clean up any in-flight reorder state and commit final order if needed.
+        if let final = reorderedPlayers {
+            session.reorderPlayers(final)
+        }
+        reorderDraggedID = nil
+        reorderTouchLocation = nil
+        reorderedPlayers = nil
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isRearranging = false
+        }
+    }
+
+    private func removePlayer(_ participant: Participant) {
+        guard case .player(let id) = participant else { return }
+        HapticManager.shared.warning()
+        withAnimation(.easeInOut(duration: 0.25)) {
+            session.removePlayer(id: id)
+        }
+    }
+
+    private func handleRearrangeChange(participant: Participant, value: DragGesture.Value) {
+        // Only player cards participate in reorder.
+        guard case .player(let draggedID) = participant else { return }
+
+        let movedEnough = abs(value.translation.width) > 1 || abs(value.translation.height) > 1
+
+        if reorderDraggedID == nil {
+            guard movedEnough else { return }
+            HapticManager.shared.lightImpact()
+            reorderDraggedID = draggedID
+            reorderedPlayers = session.players
+        }
+
+        reorderTouchLocation = value.location
+
+        // Hit-test for the player we're hovering over.
+        guard let target = hitTest(value.location),
+              case .player(let targetID) = target,
+              targetID != draggedID,
+              var current = reorderedPlayers,
+              let currentIdx = current.firstIndex(where: { $0.id == draggedID }),
+              let targetIdx = current.firstIndex(where: { $0.id == targetID }),
+              currentIdx != targetIdx
+        else { return }
+
+        let p = current.remove(at: currentIdx)
+        current.insert(p, at: targetIdx)
+        HapticManager.shared.selectionChanged()
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+            reorderedPlayers = current
+        }
+    }
+
+    private func handleRearrangeEnd(participant: Participant, value: DragGesture.Value) {
+        defer {
+            reorderDraggedID = nil
+            reorderTouchLocation = nil
+            reorderedPlayers = nil
+        }
+
+        // Drag never committed (e.g. just a tap on a wobbling card) — nothing to do.
+        guard reorderDraggedID != nil, let final = reorderedPlayers else { return }
+
+        session.reorderPlayers(final)
     }
 }
 

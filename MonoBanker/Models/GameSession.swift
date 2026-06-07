@@ -220,6 +220,23 @@ final class GameSession {
         return new
     }
 
+    /// Remove a player from the game. Historical transactions referencing them are preserved
+    /// (their display name will resolve to "?" once they're gone).
+    func removePlayer(id: UUID) {
+        guard players.contains(where: { $0.id == id }) else { return }
+        players.removeAll { $0.id == id }
+        didMutate?()
+    }
+
+    /// Replace the player list with the same set of players in a new order.
+    /// Rejects any input that isn't a permutation of the current roster.
+    func reorderPlayers(_ newOrder: [Player]) {
+        guard Set(newOrder.map(\.id)) == Set(players.map(\.id)),
+              newOrder.count == players.count else { return }
+        players = newOrder
+        didMutate?()
+    }
+
     // MARK: - Undo
 
     /// Reverse the most recent transaction. Returns true if one was undone.
