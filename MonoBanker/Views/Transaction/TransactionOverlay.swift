@@ -126,7 +126,7 @@ struct TransactionOverlay: View {
     private var amountDisplay: some View {
         Text("$\(amount)")
             .font(.system(size: 64, weight: .semibold, design: .rounded))
-            .foregroundColor(.brandPrimary)
+            .foregroundColor(.textPrimary)
             .contentTransition(.numericText(value: Double(amount)))
             .animation(.easeOut(duration: 0.2), value: amount)
             .monospacedDigit()
