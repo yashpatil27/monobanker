@@ -78,6 +78,41 @@ final class GameSession {
         return 0
     }
 
+    /// The signed change to this player's balance from the most recent transaction
+    /// that involved them. `nil` if they haven't participated in any transaction yet.
+    func lastDelta(for playerID: UUID) -> Int? {
+        for tx in transactions.reversed() {
+            if let delta = delta(for: playerID, in: tx) {
+                return delta
+            }
+        }
+        return nil
+    }
+
+    /// The signed change a single transaction applies to a specific player. `nil` if the
+    /// transaction did not affect them.
+    private func delta(for playerID: UUID, in tx: Transaction) -> Int? {
+        let me = Participant.player(playerID)
+
+        // Direct payer or recipient.
+        if tx.from == me { return -tx.amount }
+        if tx.to   == me { return  tx.amount }
+
+        // Player → All: every "other" gets +perPlayer.
+        if tx.to.isAll, case .player = tx.from {
+            let count = othersCount(opposite: tx.from)
+            if count > 0 { return tx.amount / count }
+        }
+
+        // All → Player: every "other" pays –perPlayer.
+        if tx.from.isAll, case .player = tx.to {
+            let count = othersCount(opposite: tx.to)
+            if count > 0 { return -(tx.amount / count) }
+        }
+
+        return nil
+    }
+
     // MARK: - Transactions
 
     /// Whether a transaction is valid.

@@ -8,7 +8,8 @@ import SwiftUI
 struct ParticipantCard: View {
     let participant: Participant
     let name: String
-    let balance: Int?        // nil for Bank
+    let balance: Int?        // nil for Bank/All
+    let lastChange: Int?     // signed delta from the player's last transaction; nil for none/Bank/All
     let color: Color         // accent color (player color or brand pink for bank)
     let isDragging: Bool     // this card is being dragged
     let isTargeted: Bool     // this card is a valid drop target being hovered
@@ -32,16 +33,26 @@ struct ParticipantCard: View {
 
             Spacer(minLength: 0)
 
-            // Balance or Bank tag
+            // Balance or Bank/All tag
             if let balance {
-                Text("$\(balance)")
-                    .font(.system(size: 28, weight: .medium, design: .rounded))
-                    .foregroundColor(.textPrimary)
-                    .contentTransition(.numericText(value: Double(balance)))
-                    .animation(.easeOut(duration: 0.3), value: balance)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("$\(balance)")
+                        .font(.system(size: 28, weight: .medium, design: .rounded))
+                        .foregroundColor(.textPrimary)
+                        .contentTransition(.numericText(value: Double(balance)))
+                        .animation(.easeOut(duration: 0.3), value: balance)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+
+                    Text(deltaDisplay(lastChange))
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundColor(deltaColor(lastChange))
+                        .contentTransition(.numericText(value: Double(lastChange ?? 0)))
+                        .animation(.easeOut(duration: 0.3), value: lastChange)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                }
             } else {
                 Text(noBalancePlaceholder)
                     .font(.system(size: 10, weight: .semibold))
@@ -82,6 +93,17 @@ struct ParticipantCard: View {
         }
     }
 
+    private func deltaDisplay(_ delta: Int?) -> String {
+        guard let delta else { return "$0" }
+        let sign = delta >= 0 ? "+" : "-"
+        return "\(sign)$\(abs(delta))"
+    }
+
+    private func deltaColor(_ delta: Int?) -> Color {
+        guard let delta, delta != 0 else { return .textSecondary }
+        return delta > 0 ? .success : .error
+    }
+
     private var cardBackground: some View {
         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
             .fill(
@@ -110,6 +132,7 @@ struct ParticipantCard: View {
             participant: .bank,
             name: "Bank",
             balance: nil,
+            lastChange: nil,
             color: .brandPrimary,
             isDragging: false,
             isTargeted: false,
@@ -119,6 +142,7 @@ struct ParticipantCard: View {
             participant: .player(UUID()),
             name: "Alice",
             balance: 1500,
+            lastChange: 50,
             color: PlayerColor.sky.color,
             isDragging: false,
             isTargeted: true,

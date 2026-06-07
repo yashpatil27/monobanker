@@ -260,6 +260,7 @@ struct GameView: View {
             participant: participant,
             name: session.name(for: participant),
             balance: session.balance(of: participant),
+            lastChange: lastChange(for: participant),
             color: accentColor(for: participant),
             isDragging: false, // source card never animates; only the floating preview does
             isTargeted: isTargeted,
@@ -296,6 +297,7 @@ struct GameView: View {
                 participant: dragged,
                 name: session.name(for: dragged),
                 balance: session.balance(of: dragged),
+                lastChange: lastChange(for: dragged),
                 color: accentColor(for: dragged),
                 isDragging: true,
                 isTargeted: false,
@@ -375,6 +377,15 @@ struct GameView: View {
         case .player(let id):
             return session.player(for: id)?.color.color ?? .brandPrimary
         }
+    }
+
+    /// The signed change to a player's balance from their most recent transaction.
+    /// Returns nil for Bank, All, or players who haven't transacted yet.
+    private func lastChange(for participant: Participant) -> Int? {
+        if case .player(let id) = participant {
+            return session.lastDelta(for: id)
+        }
+        return nil
     }
 }
 
