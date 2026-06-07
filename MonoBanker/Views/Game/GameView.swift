@@ -222,11 +222,14 @@ struct GameView: View {
                     HapticManager.shared.mediumImpact()
                     exitRearrangeMode()
                 } label: {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: buttonSize * 0.45, weight: .bold))
-                        .foregroundColor(.black)
-                        .frame(width: buttonSize, height: buttonSize)
-                        .background(Circle().fill(Color.brandPrimary))
+                    IconContainer(
+                        systemName: "checkmark",
+                        tint: .brandPrimary,
+                        backgroundColor: Color.brandPrimary.opacity(0.18),
+                        size: buttonSize,
+                        iconSize: buttonSize * 0.42,
+                        cornerRadius: DesignSystem.CornerRadius.md
+                    )
                 }
                 .buttonStyle(.plain)
                 .transition(.scale.combined(with: .opacity))

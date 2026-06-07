@@ -216,8 +216,8 @@ struct TransactionOverlay: View {
         case .digit(let n):
             let next = amount * 10 + n
             if next <= 9_999_999 { amount = next }
-        case .tripleZero:
-            let next = amount * 1000
+        case .doubleZero:
+            let next = amount * 100
             if next <= 9_999_999 { amount = next }
         case .backspace:
             amount = amount / 10

@@ -7,7 +7,7 @@ import SwiftUI
 
 enum NumpadKey: Hashable {
     case digit(Int)
-    case tripleZero
+    case doubleZero
     case backspace
 }
 
@@ -18,7 +18,7 @@ struct Numpad: View {
         [.digit(1), .digit(2), .digit(3)],
         [.digit(4), .digit(5), .digit(6)],
         [.digit(7), .digit(8), .digit(9)],
-        [.tripleZero, .digit(0), .backspace]
+        [.doubleZero, .digit(0), .backspace]
     ]
 
     var body: some View {
@@ -73,9 +73,9 @@ private struct NumpadButton: View {
         case .digit(let n):
             Text("\(n)")
                 .font(.system(size: 26, weight: .medium, design: .rounded))
-        case .tripleZero:
-            Text("000")
-                .font(.system(size: 22, weight: .medium, design: .rounded))
+        case .doubleZero:
+            Text("00")
+                .font(.system(size: 24, weight: .medium, design: .rounded))
         case .backspace:
             Image(systemName: "delete.left")
                 .font(.system(size: 22, weight: .medium))
