@@ -124,21 +124,16 @@ struct TransactionOverlay: View {
     }
 
     private var amountDisplay: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text("$")
-                .font(.system(size: 36, weight: .medium, design: .rounded))
-                .foregroundColor(.brandPrimary.opacity(0.7))
-            Text("\(amount)")
-                .font(.system(size: 64, weight: .semibold, design: .rounded))
-                .foregroundColor(.brandPrimary)
-                .contentTransition(.numericText(value: Double(amount)))
-                .animation(.easeOut(duration: 0.2), value: amount)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-        }
-        .padding(.horizontal, DesignSystem.Spacing.xl)
-        .offset(x: shake)
+        Text("$\(amount)")
+            .font(.system(size: 64, weight: .semibold, design: .rounded))
+            .foregroundColor(.brandPrimary)
+            .contentTransition(.numericText(value: Double(amount)))
+            .animation(.easeOut(duration: 0.2), value: amount)
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+            .padding(.horizontal, DesignSystem.Spacing.xl)
+            .offset(x: shake)
     }
 
     @ViewBuilder

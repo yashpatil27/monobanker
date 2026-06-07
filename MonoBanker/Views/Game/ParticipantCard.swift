@@ -34,19 +34,14 @@ struct ParticipantCard: View {
 
             // Balance or Bank tag
             if let balance {
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("$")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.textSecondary)
-                    Text("\(balance)")
-                        .font(.system(size: 28, weight: .medium, design: .rounded))
-                        .foregroundColor(.textPrimary)
-                        .contentTransition(.numericText(value: Double(balance)))
-                        .animation(.easeOut(duration: 0.3), value: balance)
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                }
+                Text("$\(balance)")
+                    .font(.system(size: 28, weight: .medium, design: .rounded))
+                    .foregroundColor(.textPrimary)
+                    .contentTransition(.numericText(value: Double(balance)))
+                    .animation(.easeOut(duration: 0.3), value: balance)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             } else {
                 Text(noBalancePlaceholder)
                     .font(.system(size: 10, weight: .semibold))
