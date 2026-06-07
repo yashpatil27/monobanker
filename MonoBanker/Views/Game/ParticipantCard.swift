@@ -27,6 +27,7 @@ struct ParticipantCard: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.textPrimary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.6)
 
                 Spacer(minLength: 0)
             }
@@ -60,7 +61,8 @@ struct ParticipantCard: View {
                     .kerning(1.4)
             }
         }
-        .padding(DesignSystem.Spacing.lg)
+        .padding(.horizontal, DesignSystem.Spacing.md)
+        .padding(.vertical, DesignSystem.Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(cardBackground)
         .overlay(targetOverlay)
