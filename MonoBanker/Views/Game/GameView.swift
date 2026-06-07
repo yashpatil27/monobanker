@@ -99,10 +99,6 @@ struct GameView: View {
                     showingMenu = false
                     showingHistory = true
                 },
-                onAddPlayer: {
-                    showingMenu = false
-                    showingAddPlayer = true
-                },
                 onRestart: {
                     showingMenu = false
                     showingRestartConfirm = true
@@ -112,7 +108,7 @@ struct GameView: View {
                     showingEndConfirm = true
                 }
             )
-            .presentationDetents([.height(360)])
+            .presentationDetents([.height(300)])
             .presentationBackground(.black)
         }
         .sheet(isPresented: $showingAddPlayer) {
@@ -220,7 +216,7 @@ struct GameView: View {
     @ViewBuilder
     private func sideColumn(buttonSize: CGFloat, buttonSpacing: CGFloat) -> some View {
         if isRearranging {
-            VStack {
+            VStack(spacing: buttonSpacing) {
                 Spacer(minLength: 0)
                 Button {
                     HapticManager.shared.mediumImpact()
@@ -234,6 +230,13 @@ struct GameView: View {
                 }
                 .buttonStyle(.plain)
                 .transition(.scale.combined(with: .opacity))
+
+                sideButton(systemName: "person.badge.plus", size: buttonSize) {
+                    HapticManager.shared.lightImpact()
+                    showingAddPlayer = true
+                }
+                .transition(.scale.combined(with: .opacity))
+
                 Spacer(minLength: 0)
             }
         } else {
