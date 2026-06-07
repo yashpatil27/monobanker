@@ -34,14 +34,6 @@ targets:
           - UIInterfaceOrientationLandscapeRight
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
-        UTExportedTypeDeclarations:
-          - UTTypeIdentifier: com.monobanker.participant
-            UTTypeDescription: MonoBanker Participant
-            UTTypeConformsTo:
-              - public.data
-            UTTypeTagSpecification:
-              public.mime-type:
-                - application/x-monobanker-participant
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.monobanker.MonoBanker

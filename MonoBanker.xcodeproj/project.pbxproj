@@ -33,7 +33,6 @@
 		EEC89EB7A5E5187F000B0A13 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47471A3FBA1B8D73217BD77 /* DesignSystem.swift */; };
 		F00223F12CEC73DDCE9A69E9 /* TransactionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FF122D720A7321A2732BAC /* TransactionOverlay.swift */; };
 		F04994D6FD70781DEB136BF3 /* Numpad.swift in Sources */ = {isa = PBXBuildFile; fileRef = E724DD71536FCED756F3E606 /* Numpad.swift */; };
-		F419CAF70609CD408162110A /* ParticipantDragPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE50B82149C9AFC7D5FBA0C3 /* ParticipantDragPayload.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,7 +59,6 @@
 		AB57169CB0ABE677211B2AD8 /* ParticipantCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantCard.swift; sourceTree = "<group>"; };
 		B3F73BD5980606ED04A12E0C /* BrandColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandColors.swift; sourceTree = "<group>"; };
 		BEA1FF8965CFECC9F01E4864 /* MonoBankerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonoBankerApp.swift; sourceTree = "<group>"; };
-		CE50B82149C9AFC7D5FBA0C3 /* ParticipantDragPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantDragPayload.swift; sourceTree = "<group>"; };
 		D47471A3FBA1B8D73217BD77 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		DD17EE7A50D30A33114AEBC0 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		E5FF122D720A7321A2732BAC /* TransactionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionOverlay.swift; sourceTree = "<group>"; };
@@ -75,7 +73,6 @@
 				3B321D4BD6809FD12BCD4CC4 /* GameView.swift */,
 				0B90AB191F84C74E65271D05 /* HistoryStrip.swift */,
 				AB57169CB0ABE677211B2AD8 /* ParticipantCard.swift */,
-				CE50B82149C9AFC7D5FBA0C3 /* ParticipantDragPayload.swift */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -272,7 +269,6 @@
 				F04994D6FD70781DEB136BF3 /* Numpad.swift in Sources */,
 				A2BA50070B8E90A7DDCAC891 /* Participant.swift in Sources */,
 				4599C1F3DD279004B2977CE8 /* ParticipantCard.swift in Sources */,
-				F419CAF70609CD408162110A /* ParticipantDragPayload.swift in Sources */,
 				95B3979F2841B374C75FC5A4 /* Player.swift in Sources */,
 				149590FFB6D30C358DFE14C6 /* PlayerColor.swift in Sources */,
 				00B1D64C28D299AF8CBBD35A /* RootView.swift in Sources */,

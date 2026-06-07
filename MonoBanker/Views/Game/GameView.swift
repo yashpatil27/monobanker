@@ -11,6 +11,8 @@ struct GameView: View {
 
     @State private var draggingId: Participant?
     @State private var hoveredTarget: Participant?
+    @State private var dragTouchLocation: CGPoint?
+    @State private var cardFrames: [Participant: CGRect] = [:]
     @State private var pendingTransaction: (from: Participant, to: Participant)?
     @State private var showingHistory = false
     @State private var showingMenu = false
@@ -47,6 +49,13 @@ struct GameView: View {
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .padding(.bottom, DesignSystem.Spacing.lg)
             }
+
+            // Floating drag preview — follows the finger and is drawn above the grid.
+            floatingDragPreview
+        }
+        .coordinateSpace(name: GameView.gameViewSpace)
+        .onPreferenceChange(CardFramePreferenceKey.self) { frames in
+            cardFrames = frames
         }
         .fullScreenCover(isPresented: Binding(
             get: { pendingTransaction != nil },
@@ -245,77 +254,140 @@ struct GameView: View {
 
     @ViewBuilder
     private func cardView(for participant: Participant, cardSize: CGSize) -> some View {
-        let name = session.name(for: participant)
-        let balance = session.balance(of: participant)
-        let color: Color = {
-            switch participant {
-            case .bank: return .brandPrimary
-            case .all:  return .white
-            case .player(let id):
-                return session.player(for: id)?.color.color ?? .brandPrimary
-            }
-        }()
-
-        let isDragging = draggingId == participant
         let isTargeted = hoveredTarget == participant && draggingId != participant && draggingId != nil
 
         ParticipantCard(
             participant: participant,
-            name: name,
-            balance: balance,
-            color: color,
-            isDragging: isDragging,
+            name: session.name(for: participant),
+            balance: session.balance(of: participant),
+            color: accentColor(for: participant),
+            isDragging: false, // source card never animates; only the floating preview does
             isTargeted: isTargeted,
             isInactive: false
         )
-        .opacity(draggingId == participant ? 0.0 : 1.0) // hide original while dragging (preview shows)
-        .draggable(ParticipantDragPayload(participant: participant)) {
-            // Drag preview matches the actual rendered card size.
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(
+                    key: CardFramePreferenceKey.self,
+                    value: [participant: geo.frame(in: .named(GameView.gameViewSpace))]
+                )
+            }
+        )
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 0, coordinateSpace: .named(GameView.gameViewSpace))
+                .onChanged { value in
+                    handleDragChange(participant: participant, value: value)
+                }
+                .onEnded { value in
+                    handleDragEnd(participant: participant, value: value)
+                }
+        )
+    }
+
+    // MARK: - Drag preview overlay
+
+    @ViewBuilder
+    private var floatingDragPreview: some View {
+        if let dragged = draggingId,
+           let loc = dragTouchLocation,
+           let frame = cardFrames[dragged] {
             ParticipantCard(
-                participant: participant,
-                name: name,
-                balance: balance,
-                color: color,
+                participant: dragged,
+                name: session.name(for: dragged),
+                balance: session.balance(of: dragged),
+                color: accentColor(for: dragged),
                 isDragging: true,
                 isTargeted: false,
                 isInactive: false
             )
-            .frame(width: cardSize.width, height: cardSize.height)
-            .onAppear {
-                HapticManager.shared.lightImpact()
-                draggingId = participant
-            }
-            .onDisappear {
-                draggingId = nil
-                hoveredTarget = nil
-            }
+            .frame(width: frame.width, height: frame.height)
+            .shadow(color: Color.brandPrimary.opacity(0.35), radius: 18, y: 8)
+            .position(loc)
+            .allowsHitTesting(false)
+            .transition(.opacity)
         }
-        .dropDestination(for: ParticipantDragPayload.self) { items, _ in
-            guard let payload = items.first else { return false }
-            let payer = payload.participant
-            let recipient = participant
-            guard payer != recipient else { return false }
-            // Bank cannot interact with All.
-            if (payer.isBank && recipient.isAll) || (payer.isAll && recipient.isBank) {
-                HapticManager.shared.warning()
-                draggingId = nil
-                hoveredTarget = nil
-                return false
-            }
-            HapticManager.shared.heavyImpact()
-            pendingTransaction = (from: payer, to: recipient)
+    }
+
+    // MARK: - Drag gesture handlers
+
+    private func handleDragChange(participant: Participant, value: DragGesture.Value) {
+        // Only commit the drag once the finger has moved — lets pure taps stay no-ops.
+        let movedEnough = abs(value.translation.width) > 1 || abs(value.translation.height) > 1
+
+        if draggingId == nil {
+            guard movedEnough else { return }
+            HapticManager.shared.lightImpact()
+            draggingId = participant
+        }
+
+        dragTouchLocation = value.location
+
+        let target = hitTest(value.location)
+        if let target, target != participant, !isInvalidPair(payer: participant, recipient: target) {
+            hoveredTarget = target
+        } else if hoveredTarget != nil {
+            hoveredTarget = nil
+        }
+    }
+
+    private func handleDragEnd(participant: Participant, value: DragGesture.Value) {
+        defer {
             draggingId = nil
             hoveredTarget = nil
-            return true
-        } isTargeted: { targeted in
-            // Don't highlight Bank when an All card is being dragged (or vice versa).
-            let invalid = (draggingId?.isBank == true && participant.isAll)
-                || (draggingId?.isAll == true && participant.isBank)
-            if targeted && !invalid {
-                hoveredTarget = participant
-            } else if hoveredTarget == participant {
-                hoveredTarget = nil
-            }
+            dragTouchLocation = nil
         }
+
+        // No drag was ever committed (finger never moved enough) — silent no-op.
+        guard draggingId != nil else { return }
+
+        let dropTarget = hitTest(value.location)
+
+        guard let target = dropTarget, target != participant else {
+            // Released on the dragged card itself or in empty space — silent cancel.
+            return
+        }
+
+        if isInvalidPair(payer: participant, recipient: target) {
+            HapticManager.shared.warning()
+            return
+        }
+
+        HapticManager.shared.heavyImpact()
+        pendingTransaction = (from: participant, to: target)
+    }
+
+    private func hitTest(_ location: CGPoint) -> Participant? {
+        for (participant, frame) in cardFrames where frame.contains(location) {
+            return participant
+        }
+        return nil
+    }
+
+    private func isInvalidPair(payer: Participant, recipient: Participant) -> Bool {
+        (payer.isBank && recipient.isAll) || (payer.isAll && recipient.isBank)
+    }
+
+    private func accentColor(for participant: Participant) -> Color {
+        switch participant {
+        case .bank: return .brandPrimary
+        case .all:  return .white
+        case .player(let id):
+            return session.player(for: id)?.color.color ?? .brandPrimary
+        }
+    }
+}
+
+// MARK: - Coordinate space + frame harvesting
+
+private extension GameView {
+    static let gameViewSpace = "gameView"
+}
+
+private struct CardFramePreferenceKey: PreferenceKey {
+    static var defaultValue: [Participant: CGRect] = [:]
+    static func reduce(value: inout [Participant: CGRect],
+                       nextValue: () -> [Participant: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
     }
 }

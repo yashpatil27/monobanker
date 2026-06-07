@@ -41,25 +41,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UTExportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>MonoBanker Participant</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.monobanker.participant</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.mime-type</key>
-				<array>
-					<string>application/x-monobanker-participant</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
 </dict>
 </plist>
