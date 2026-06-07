@@ -39,15 +39,12 @@ struct GameView: View {
         effectivePlayers.count > 6 ? 3 : 2
     }
 
-    private var playerRows: [[Participant]] {
-        let c = columnCount
-        let items = effectivePlayers.map { Participant.player($0.id) }
-        return stride(from: 0, to: items.count, by: c).map {
-            Array(items[$0..<min($0 + c, items.count)])
-        }
+    private var playerRowCount: Int {
+        guard !effectivePlayers.isEmpty else { return 0 }
+        return (effectivePlayers.count + columnCount - 1) / columnCount
     }
 
-    private var totalRowCount: Int { 1 + playerRows.count }
+    private var totalRowCount: Int { 1 + playerRowCount }
 
     var body: some View {
         ZStack {
@@ -173,10 +170,6 @@ struct GameView: View {
             // Top row card widths share the remaining space after the button column.
             let topRowCardW = (availableW - sideColumnW - spacing * 2) / 2
 
-            // Player row card widths share the full width.
-            let playerCols = CGFloat(columnCount)
-            let playerRowCardW = (availableW - spacing * (playerCols - 1)) / playerCols
-
             VStack(spacing: spacing) {
                 // Top row: side buttons + Bank + All.
                 topGridRow(
@@ -188,14 +181,17 @@ struct GameView: View {
                     buttonSpacing: buttonSpacing
                 )
 
-                // Player rows: 2 or 3 columns depending on player count.
-                ForEach(playerRows.indices, id: \.self) { rowIdx in
-                    gridRow(
-                        playerRows[rowIdx],
-                        columns: columnCount,
-                        cardSize: CGSize(width: playerRowCardW, height: rowH),
-                        spacing: spacing
-                    )
+                // Player cards in a single LazyVGrid so each card keeps a stable view
+                // identity (and a stable DragGesture) as the array reorders during a rearrange drag.
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: columnCount),
+                    alignment: .leading,
+                    spacing: spacing
+                ) {
+                    ForEach(effectivePlayers) { player in
+                        cardView(for: .player(player.id))
+                            .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -217,10 +213,10 @@ struct GameView: View {
             sideColumn(buttonSize: buttonSize, buttonSpacing: buttonSpacing)
                 .frame(width: sideColumnW, height: rowH, alignment: .center)
 
-            cardView(for: .bank, cardSize: CGSize(width: cardW, height: rowH))
+            cardView(for: .bank)
                 .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
 
-            cardView(for: .all, cardSize: CGSize(width: cardW, height: rowH))
+            cardView(for: .all)
                 .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
         }
     }
@@ -276,27 +272,10 @@ struct GameView: View {
         .buttonStyle(.plain)
     }
 
-    /// One row of cards with trailing blank slots to keep column widths consistent.
-    @ViewBuilder
-    private func gridRow(_ items: [Participant], columns: Int, cardSize: CGSize, spacing: CGFloat) -> some View {
-        HStack(spacing: spacing) {
-            ForEach(items, id: \.self) { participant in
-                cardView(for: participant, cardSize: cardSize)
-                    .frame(maxWidth: .infinity, minHeight: cardSize.height, maxHeight: cardSize.height)
-            }
-            let blanks = columns - items.count
-            if blanks > 0 {
-                ForEach(0..<blanks, id: \.self) { _ in
-                    Color.clear.frame(maxWidth: .infinity, minHeight: cardSize.height, maxHeight: cardSize.height)
-                }
-            }
-        }
-    }
-
     // MARK: - Card factory + drag/drop
 
     @ViewBuilder
-    private func cardView(for participant: Participant, cardSize: CGSize) -> some View {
+    private func cardView(for participant: Participant) -> some View {
         let isTargeted = hoveredTarget == participant && draggingId != participant && draggingId != nil
         let wobble = isRearranging && participantIsPlayer(participant)
         let removable = wobble
