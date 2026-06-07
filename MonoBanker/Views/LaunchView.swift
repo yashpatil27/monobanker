@@ -15,10 +15,20 @@ struct LaunchView: View {
             Spacer()
 
             // Wordmark
-            VStack(spacing: DesignSystem.Spacing.md) {
-                Image(systemName: "dollarsign.circle.fill")
-                    .font(.system(size: 56, weight: .regular))
-                    .foregroundStyle(Color.brandPrimary)
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                Image("AppIconImage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 112, height: 112)
+                    .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 26, style: .continuous)
+                            .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.4), radius: 18, y: 7)
+                    // Pull the title up to compensate for the icon's built-in bottom padding
+                    // (the visible building doesn't reach the bottom of the icon's frame).
+                    .padding(.bottom, -16)
 
                 Text("MonoBanker")
                     .font(.system(size: 36, weight: .semibold, design: .rounded))
