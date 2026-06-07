@@ -103,10 +103,6 @@ struct GameView: View {
                     showingMenu = false
                     showingAddPlayer = true
                 },
-                onRearrange: {
-                    showingMenu = false
-                    enterRearrangeMode()
-                },
                 onRestart: {
                     showingMenu = false
                     showingRestartConfirm = true
@@ -116,7 +112,7 @@ struct GameView: View {
                     showingEndConfirm = true
                 }
             )
-            .presentationDetents([.height(420)])
+            .presentationDetents([.height(360)])
             .presentationBackground(.black)
         }
         .sheet(isPresented: $showingAddPlayer) {
@@ -246,8 +242,8 @@ struct GameView: View {
                     HapticManager.shared.lightImpact()
                     showingMenu = true
                 }
-                sideButton(systemName: "questionmark", size: buttonSize) {
-                    HapticManager.shared.lightImpact()
+                sideButton(systemName: "square.grid.2x2", size: buttonSize) {
+                    enterRearrangeMode()
                 }
                 sideButton(systemName: "ellipsis", size: buttonSize) {
                     HapticManager.shared.lightImpact()
