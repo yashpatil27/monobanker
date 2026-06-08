@@ -101,22 +101,25 @@ struct SettingsView: View {
     private func behaviorSection(hapticsEnabled: Binding<Bool>) -> some View {
         sectionHeader("BEHAVIOR")
         Card {
-            Toggle(isOn: hapticsEnabled) {
-                HStack(spacing: DesignSystem.Spacing.md) {
-                    IconContainer(systemName: "iphone.radiowaves.left.and.right",
-                                  tint: .textPrimary,
-                                  backgroundColor: Color.gray.opacity(0.15))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Haptic feedback")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.textPrimary)
-                        Text("Vibration on drag, drop, and confirm.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.textSecondary)
-                    }
+            HStack(spacing: DesignSystem.Spacing.md) {
+                IconContainer(systemName: "iphone.radiowaves.left.and.right",
+                              tint: .textPrimary,
+                              backgroundColor: Color.gray.opacity(0.15))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Haptic feedback")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.textPrimary)
+                    Text("Vibration on drag, drop, and confirm.")
+                        .font(.system(size: 12))
+                        .foregroundColor(.textSecondary)
                 }
+                Spacer(minLength: 0)
+                Toggle("", isOn: hapticsEnabled)
+                    .labelsHidden()
+                    .tint(.blue)
+                    .fixedSize()
+                    .scaleEffect(0.8)
             }
-            .tint(.brandPrimary)
         }
     }
 
