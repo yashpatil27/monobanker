@@ -7,10 +7,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AppSettings.self) private var settings
-    @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
-
-    @State private var showingClearConfirm = false
 
     var body: some View {
         @Bindable var settings = settings
@@ -24,10 +21,8 @@ struct SettingsView: View {
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
-                            startingBalanceSection(balance: $settings.defaultStartingBalance)
-                            defaultPlayersSection
+                            gameDefaultsSection
                             behaviorSection(hapticsEnabled: $settings.hapticsEnabled)
-                            maintenanceSection
                             infoSection
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
@@ -37,15 +32,6 @@ struct SettingsView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
-        }
-        .alert("Clear saved game?", isPresented: $showingClearConfirm) {
-            Button("Clear", role: .destructive) {
-                HapticManager.shared.mediumImpact()
-                appState.endGame()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Any in-progress game will be wiped.")
         }
     }
 
@@ -79,73 +65,33 @@ struct SettingsView: View {
         .padding(.bottom, DesignSystem.Spacing.md)
     }
 
-    // MARK: - Starting Balance
+    // MARK: - Game Defaults
 
     @ViewBuilder
-    private func startingBalanceSection(balance: Binding<Int>) -> some View {
-        sectionHeader("DEFAULT STARTING BALANCE")
-        Card {
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                Text("$")
-                    .font(.system(size: 28, weight: .medium, design: .rounded))
-                    .foregroundColor(.brandPrimary)
-
-                TextField(
-                    "1500",
-                    text: Binding(
-                        get: { String(balance.wrappedValue) },
-                        set: { newValue in
-                            let digits = newValue.filter(\.isNumber)
-                            balance.wrappedValue = Int(digits) ?? 0
-                        }
-                    )
+    private var gameDefaultsSection: some View {
+        sectionHeader("GAME DEFAULTS")
+        VStack(spacing: DesignSystem.Spacing.sm) {
+            NavigationLink {
+                DefaultBalanceView()
+            } label: {
+                infoRow(
+                    icon: "banknote",
+                    title: "Change Default Balance",
+                    trailing: "$\(settings.defaultStartingBalance)"
                 )
-                .keyboardType(.numberPad)
-                .font(.system(size: 28, weight: .medium, design: .rounded))
-                .foregroundColor(.textPrimary)
-                .tint(.brandPrimary)
             }
-        }
-    }
+            .buttonStyle(.plain)
 
-    // MARK: - Default Players
-
-    @ViewBuilder
-    private var defaultPlayersSection: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            HStack {
-                Text("DEFAULT PLAYERS")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.textSecondary)
-                    .kerning(1.2)
-
-                Spacer()
-
-                Text("\(settings.defaultPlayers.count) / \(AppSettings.maxDefaultPlayers)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.textSecondary)
-                    .kerning(1.2)
+            NavigationLink {
+                DefaultPlayersView()
+            } label: {
+                infoRow(
+                    icon: "person.2",
+                    title: "Change Default Players",
+                    trailing: "\(settings.defaultPlayers.count) / \(AppSettings.maxDefaultPlayers)"
+                )
             }
-
-            Text("These pre-fill the New Game screen so you don't have to type them every time.")
-                .font(.system(size: 12))
-                .foregroundColor(.textSecondary)
-                .padding(.bottom, DesignSystem.Spacing.xs)
-
-            VStack(spacing: DesignSystem.Spacing.sm) {
-                ForEach(settings.defaultPlayers) { player in
-                    DefaultPlayerRow(player: player) {
-                        HapticManager.shared.lightImpact()
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            settings.removeDefaultPlayer(id: player.id)
-                        }
-                    }
-                }
-
-                if settings.canAddDefaultPlayer {
-                    AddDefaultPlayerCard()
-                }
-            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -171,40 +117,6 @@ struct SettingsView: View {
                 }
             }
             .tint(.brandPrimary)
-        }
-    }
-
-    // MARK: - Maintenance
-
-    @ViewBuilder
-    private var maintenanceSection: some View {
-        sectionHeader("MAINTENANCE")
-        Card(padding: false) {
-            Button {
-                HapticManager.shared.lightImpact()
-                showingClearConfirm = true
-            } label: {
-                HStack(spacing: DesignSystem.Spacing.md) {
-                    IconContainer(systemName: "trash",
-                                  tint: .error,
-                                  backgroundColor: Color.error.opacity(0.15))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Clear saved game")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.error)
-                        Text(appState.hasActiveSession
-                             ? "A game is currently in progress."
-                             : "No active game.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.textSecondary)
-                    }
-                    Spacer()
-                }
-                .padding(DesignSystem.Spacing.md)
-            }
-            .buttonStyle(.plain)
-            .disabled(!appState.hasActiveSession)
-            .opacity(appState.hasActiveSession ? 1 : 0.5)
         }
     }
 
@@ -407,6 +319,181 @@ private struct SettingsColorSwatch: View {
         }
         .disabled(isUsed && !isSelected)
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - DefaultBalanceView
+
+struct DefaultBalanceView: View {
+    @Environment(AppSettings.self) private var settings
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        @Bindable var settings = settings
+
+        ZStack {
+            Color.bgPrimary.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                header
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        Text("DEFAULT STARTING BALANCE")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.textSecondary)
+                            .kerning(1.2)
+
+                        Text("Pre-fills the starting balance on the New Game screen.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.textSecondary)
+                            .padding(.bottom, DesignSystem.Spacing.xs)
+
+                        Card {
+                            HStack(spacing: DesignSystem.Spacing.sm) {
+                                Text("$")
+                                    .font(.system(size: 32, weight: .medium))
+                                    .foregroundColor(.brandPrimary)
+
+                                TextField(
+                                    "1500",
+                                    text: Binding(
+                                        get: { String(settings.defaultStartingBalance) },
+                                        set: { newValue in
+                                            let digits = newValue.filter(\.isNumber)
+                                            settings.defaultStartingBalance = Int(digits) ?? 0
+                                        }
+                                    )
+                                )
+                                .keyboardType(.numberPad)
+                                .font(.system(size: 32, weight: .medium))
+                                .foregroundColor(.textPrimary)
+                                .tint(.brandPrimary)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.vertical, DesignSystem.Spacing.md)
+                    .padding(.bottom, DesignSystem.Spacing.xxxl)
+                }
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
+        HStack {
+            Button {
+                HapticManager.shared.lightImpact()
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+
+            Spacer()
+
+            Text("Default Balance")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Spacer().frame(width: 44)
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+        .padding(.top, 2)
+        .padding(.bottom, DesignSystem.Spacing.md)
+    }
+}
+
+// MARK: - DefaultPlayersView
+
+struct DefaultPlayersView: View {
+    @Environment(AppSettings.self) private var settings
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack {
+            Color.bgPrimary.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                header
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        HStack {
+                            Text("DEFAULT PLAYERS")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.textSecondary)
+                                .kerning(1.2)
+
+                            Spacer()
+
+                            Text("\(settings.defaultPlayers.count) / \(AppSettings.maxDefaultPlayers)")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.textSecondary)
+                                .kerning(1.2)
+                        }
+
+                        Text("These pre-fill the New Game screen so you don't have to type them every time.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.textSecondary)
+                            .padding(.bottom, DesignSystem.Spacing.xs)
+
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            ForEach(settings.defaultPlayers) { player in
+                                DefaultPlayerRow(player: player) {
+                                    HapticManager.shared.lightImpact()
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        settings.removeDefaultPlayer(id: player.id)
+                                    }
+                                }
+                            }
+
+                            if settings.canAddDefaultPlayer {
+                                AddDefaultPlayerCard()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.vertical, DesignSystem.Spacing.md)
+                    .padding(.bottom, DesignSystem.Spacing.xxxl)
+                }
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
+        HStack {
+            Button {
+                HapticManager.shared.lightImpact()
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+
+            Spacer()
+
+            Text("Default Players")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Spacer().frame(width: 44)
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+        .padding(.top, 2)
+        .padding(.bottom, DesignSystem.Spacing.md)
     }
 }
 
