@@ -62,14 +62,14 @@ struct LaunchView: View {
                     } label: {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.brandPrimary)
+                            .foregroundColor(.textSecondary)
                             .frame(width: 55, height: 55)
                             .background(
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                                    .fill(Color.brandPrimary.opacity(0.15))
+                                    .fill(Color.gray.opacity(DesignSystem.Opacity.subtle))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                                            .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1)
+                                            .stroke(Color.gray.opacity(DesignSystem.Opacity.medium), lineWidth: 1)
                                     )
                             )
                     }
