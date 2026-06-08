@@ -15,7 +15,7 @@ settings:
     STRING_CATALOG_GENERATE_SYMBOLS: YES
     ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "4"
 targets:
   MonoBanker:
     type: application
@@ -40,6 +40,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "-"
+        TARGETED_DEVICE_FAMILY: "1"
       configs:
         Debug:
           CODE_SIGN_IDENTITY[sdk=iphoneos*]: "Apple Development"
