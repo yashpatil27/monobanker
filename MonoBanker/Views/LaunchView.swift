@@ -58,20 +58,12 @@ struct LaunchView: View {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     Button {
                         HapticManager.shared.lightImpact()
-                        onNewGame()
-                    } label: {
-                        Text("New Game")
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-
-                    Button {
-                        HapticManager.shared.lightImpact()
                         showingSettings = true
                     } label: {
                         Image(systemName: "gearshape.fill")
-                            .font(.system(size: 22, weight: .medium))
+                            .font(.system(size: 20, weight: .medium))
                             .foregroundColor(.brandPrimary)
-                            .frame(width: 60, height: 60)
+                            .frame(width: 55, height: 55)
                             .background(
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
                                     .fill(Color.brandPrimary.opacity(0.15))
@@ -82,6 +74,14 @@ struct LaunchView: View {
                             )
                     }
                     .buttonStyle(.plain)
+
+                    Button {
+                        HapticManager.shared.lightImpact()
+                        onNewGame()
+                    } label: {
+                        Text("New Game")
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
                 }
             }
             .padding(.horizontal, DesignSystem.Spacing.xl)

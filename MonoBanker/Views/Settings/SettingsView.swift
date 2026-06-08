@@ -19,41 +19,24 @@ struct SettingsView: View {
             ZStack {
                 Color.bgPrimary.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
-                        startingBalanceSection(balance: $settings.defaultStartingBalance)
-                        defaultPlayersSection
-                        behaviorSection(hapticsEnabled: $settings.hapticsEnabled)
-                        maintenanceSection
-                        infoSection
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.xl)
-                    .padding(.vertical, DesignSystem.Spacing.md)
-                    .padding(.bottom, DesignSystem.Spacing.xxxl)
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        HapticManager.shared.lightImpact()
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.brandPrimary)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
+                VStack(spacing: 0) {
+                    header
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
+                            startingBalanceSection(balance: $settings.defaultStartingBalance)
+                            defaultPlayersSection
+                            behaviorSection(hapticsEnabled: $settings.hapticsEnabled)
+                            maintenanceSection
+                            infoSection
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.xl)
+                        .padding(.vertical, DesignSystem.Spacing.md)
+                        .padding(.bottom, DesignSystem.Spacing.xxxl)
                     }
                 }
-                ToolbarItem(placement: .principal) {
-                    Text("Settings")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.textPrimary)
-                }
             }
-            .toolbarBackground(Color.bgPrimary, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
         }
         .alert("Clear saved game?", isPresented: $showingClearConfirm) {
             Button("Clear", role: .destructive) {
@@ -64,6 +47,36 @@ struct SettingsView: View {
         } message: {
             Text("Any in-progress game will be wiped.")
         }
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack {
+            Button {
+                HapticManager.shared.lightImpact()
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+
+            Spacer()
+
+            Text("Settings")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Spacer().frame(width: 44)
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+        .padding(.top, 2)
+        .padding(.bottom, DesignSystem.Spacing.md)
     }
 
     // MARK: - Starting Balance
@@ -400,12 +413,17 @@ private struct SettingsColorSwatch: View {
 // MARK: - HowToUseView
 
 struct HowToUseView: View {
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         ZStack {
             Color.bgPrimary.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
+            VStack(spacing: 0) {
+                header
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xl) {
                     instruction(
                         index: 1,
                         title: "Start a game",
@@ -441,22 +459,42 @@ struct HowToUseView: View {
                         title: "End or restart",
                         body: "From the menu, Restart resets every balance and clears history. End Game wipes the session entirely and returns to the launch screen."
                     )
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.vertical, DesignSystem.Spacing.md)
+                    .padding(.bottom, DesignSystem.Spacing.xxxl)
                 }
-                .padding(.horizontal, DesignSystem.Spacing.xl)
-                .padding(.vertical, DesignSystem.Spacing.md)
-                .padding(.bottom, DesignSystem.Spacing.xxxl)
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("How to use")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.textPrimary)
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
+        HStack {
+            Button {
+                HapticManager.shared.lightImpact()
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
             }
+
+            Spacer()
+
+            Text("How to use")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Spacer().frame(width: 44)
         }
-        .toolbarBackground(Color.bgPrimary, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .navigationBarTitleDisplayMode(.inline)
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+        .padding(.top, 2)
+        .padding(.bottom, DesignSystem.Spacing.md)
     }
 
     private func instruction(index: Int, title: String, body: String) -> some View {
@@ -486,6 +524,8 @@ struct HowToUseView: View {
 // MARK: - AboutView
 
 struct AboutView: View {
+    @Environment(\.dismiss) private var dismiss
+
     static var versionString: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
         return "v\(version)"
@@ -495,41 +535,64 @@ struct AboutView: View {
         ZStack {
             Color.bgPrimary.ignoresSafeArea()
 
-            VStack(spacing: DesignSystem.Spacing.lg) {
-                Spacer()
+            VStack(spacing: 0) {
+                header
 
-                Image("AppIconImage")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 112, height: 112)
-                    .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    Spacer()
 
-                Text("MonoBanker")
-                    .font(.system(size: 28, weight: .semibold, design: .rounded))
-                    .foregroundColor(.textPrimary)
+                    Image("AppIconImage")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 112, height: 112)
+                        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
 
-                Text(AboutView.versionString)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.textSecondary)
+                    Text("MonoBanker")
+                        .font(.system(size: 28, weight: .semibold, design: .rounded))
+                        .foregroundColor(.textPrimary)
 
-                Text("Cash, for the table.")
-                    .font(.system(size: 14))
-                    .foregroundColor(.textSecondary)
-                    .padding(.top, DesignSystem.Spacing.sm)
+                    Text(AboutView.versionString)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.textSecondary)
 
-                Spacer()
-            }
-            .padding(.horizontal, DesignSystem.Spacing.xl)
-        }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("About")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.textPrimary)
+                    Text("Cash, for the table.")
+                        .font(.system(size: 14))
+                        .foregroundColor(.textSecondary)
+                        .padding(.top, DesignSystem.Spacing.sm)
+
+                    Spacer()
+                }
+                .padding(.horizontal, DesignSystem.Spacing.xl)
             }
         }
-        .toolbarBackground(Color.bgPrimary, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
+        HStack {
+            Button {
+                HapticManager.shared.lightImpact()
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+
+            Spacer()
+
+            Text("About")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Spacer().frame(width: 44)
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+        .padding(.top, 2)
+        .padding(.bottom, DesignSystem.Spacing.md)
     }
 }
