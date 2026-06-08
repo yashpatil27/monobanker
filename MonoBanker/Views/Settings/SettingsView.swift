@@ -23,6 +23,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxl) {
                             gameDefaultsSection
                             behaviorSection(hapticsEnabled: $settings.hapticsEnabled)
+                            supportSection
                             infoSection
                         }
                         .padding(.horizontal, DesignSystem.Spacing.xl)
@@ -120,6 +121,21 @@ struct SettingsView: View {
                     .fixedSize()
                     .scaleEffect(0.8)
             }
+        }
+    }
+
+    // MARK: - Support
+
+    @ViewBuilder
+    private var supportSection: some View {
+        sectionHeader("SUPPORT")
+        VStack(spacing: DesignSystem.Spacing.sm) {
+            NavigationLink {
+                SupportDevelopmentView()
+            } label: {
+                infoRow(icon: "heart.fill", title: "Support development")
+            }
+            .buttonStyle(.plain)
         }
     }
 
