@@ -231,6 +231,15 @@ struct SetupView: View {
         newNameFocused = true
     }
 
+    /// If the user has no Saved Players yet, snapshot the roster they just
+    /// entered so the next New Game flow pre-fills automatically.
+    private func seedSavedPlayersIfNeeded() {
+        guard settings.defaultPlayers.isEmpty, !draftPlayers.isEmpty else { return }
+        settings.defaultPlayers = draftPlayers
+            .prefix(AppSettings.maxDefaultPlayers)
+            .map { DefaultPlayer(name: $0.name, color: $0.color) }
+    }
+
     // MARK: - Start
 
     private var startButton: some View {
@@ -241,6 +250,7 @@ struct SetupView: View {
                 let players = draftPlayers.map {
                     Player(id: $0.id, name: $0.name, color: $0.color, balance: startingBalance)
                 }
+                seedSavedPlayersIfNeeded()
                 onStart(players, startingBalance)
             } label: {
                 Text("Start Game")
