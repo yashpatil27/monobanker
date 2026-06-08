@@ -27,7 +27,7 @@ struct ParticipantCard: View {
                     .frame(width: 12, height: 12)
 
                 Text(name)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundColor(.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
@@ -50,7 +50,7 @@ struct ParticipantCard: View {
                         .minimumScaleFactor(0.6)
 
                     Text(deltaDisplay(lastChange))
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(deltaColor(lastChange))
                         .contentTransition(.numericText(value: Double(lastChange ?? 0)))
                         .animation(.easeOut(duration: 0.3), value: lastChange)
