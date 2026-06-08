@@ -33,6 +33,7 @@ struct GameView: View {
     // Dice card state (only used when settings.diceEnabled is true).
     @State private var diceLeft: Int = 1
     @State private var diceRight: Int = 1
+    @State private var diceRollID: Int = 0
 
     /// During a reorder drag, render from the in-flight preview order instead of session.
     private var effectivePlayers: [Player] {
@@ -225,7 +226,7 @@ struct GameView: View {
                 VStack(spacing: DesignSystem.Spacing.sm) {
                     cardView(for: .all, compact: true)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    DiceCard(left: diceLeft, right: diceRight, onRoll: rollDice)
+                    DiceCard(left: diceLeft, right: diceRight, rollID: diceRollID, onRoll: rollDice)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
@@ -241,6 +242,7 @@ struct GameView: View {
 
     private func rollDice() {
         HapticManager.shared.mediumImpact()
+        diceRollID &+= 1   // ensure .symbolEffect re-triggers even when faces repeat
         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
             diceLeft = Int.random(in: 1...6)
             diceRight = Int.random(in: 1...6)

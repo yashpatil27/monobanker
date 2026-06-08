@@ -8,19 +8,22 @@ import SwiftUI
 struct DiceCard: View {
     let left: Int
     let right: Int
+    /// Monotonic counter incremented on every roll. Used as the `symbolEffect`
+    /// trigger so the bounce fires even when the rolled value matches the previous one.
+    let rollID: Int
     let onRoll: () -> Void
 
     var body: some View {
         Button(action: onRoll) {
             HStack(spacing: DesignSystem.Spacing.md) {
                 Image(systemName: "die.face.\(left)")
-                    .font(.system(size: 34, weight: .medium))
+                    .font(.system(size: 48, weight: .medium))
                     .foregroundColor(.textPrimary)
-                    .symbolEffect(.bounce, value: left)
+                    .symbolEffect(.bounce, value: rollID)
                 Image(systemName: "die.face.\(right)")
-                    .font(.system(size: 34, weight: .medium))
+                    .font(.system(size: 48, weight: .medium))
                     .foregroundColor(.textPrimary)
-                    .symbolEffect(.bounce, value: right)
+                    .symbolEffect(.bounce, value: rollID)
             }
             .padding(.horizontal, DesignSystem.Spacing.md)
             .padding(.vertical, DesignSystem.Spacing.sm)
@@ -40,7 +43,7 @@ struct DiceCard: View {
 }
 
 #Preview {
-    DiceCard(left: 4, right: 6, onRoll: {})
+    DiceCard(left: 4, right: 6, rollID: 0, onRoll: {})
         .frame(width: 160, height: 64)
         .padding()
         .background(Color.black)
