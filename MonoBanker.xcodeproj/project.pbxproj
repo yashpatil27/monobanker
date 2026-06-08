@@ -47,7 +47,7 @@
 		0929F81BF6A43076A77E099C /* MenuSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSheet.swift; sourceTree = "<group>"; };
 		095BA748F7025F4D83BA09AA /* CurrencySymbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySymbol.swift; sourceTree = "<group>"; };
 		096CB650138388D26DB90948 /* PlayerColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerColor.swift; sourceTree = "<group>"; };
-		0B5E588687E7BEDC45B4FE03 /* MonoBanker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MonoBanker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B5E588687E7BEDC45B4FE03 /* MonoBanker.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MonoBanker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B90AB191F84C74E65271D05 /* HistoryStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStrip.swift; sourceTree = "<group>"; };
 		0C7938F35E78EAD7ED0831BA /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		0D640431F6BB53E66EF44F48 /* AddPlayerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPlayerSheet.swift; sourceTree = "<group>"; };
@@ -69,7 +69,7 @@
 		8FB77774C281430DBB6A6570 /* HistorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistorySheet.swift; sourceTree = "<group>"; };
 		920B71B578D7A35DAE2C3E79 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		9587E3C5C11071A731CCC11A /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
-		99017B138333D0881ED9208A /* MonoBanker.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = MonoBanker.storekit; sourceTree = "<group>"; };
+		99017B138333D0881ED9208A /* MonoBanker.storekit */ = {isa = PBXFileReference; path = MonoBanker.storekit; sourceTree = "<group>"; };
 		AB57169CB0ABE677211B2AD8 /* ParticipantCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantCard.swift; sourceTree = "<group>"; };
 		B3F73BD5980606ED04A12E0C /* BrandColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandColors.swift; sourceTree = "<group>"; };
 		B70B6363D692A170BA4549D1 /* TipJarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarStore.swift; sourceTree = "<group>"; };
@@ -252,6 +252,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					8E7206382F063C28041F191C = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -473,7 +474,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = REDACTED;
 				INFOPLIST_FILE = MonoBanker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -493,7 +493,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = REDACTED;
 				INFOPLIST_FILE = MonoBanker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
