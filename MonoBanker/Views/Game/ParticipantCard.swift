@@ -17,8 +17,34 @@ struct ParticipantCard: View {
     var isWobbling: Bool = false                  // iOS-homescreen-style wobble (rearrange mode)
     var showRemove: Bool = false                  // show the corner remove X (rearrange mode)
     var onRemove: (() -> Void)? = nil             // tap handler for the remove X
+    var isCompact: Bool = false                   // half-height horizontal layout for Bank/All in dice mode
 
     var body: some View {
+        Group {
+            if isCompact {
+                compactBody
+            } else {
+                fullBody
+            }
+        }
+        .background(cardBackground)
+        .overlay(targetOverlay)
+        .overlay(alignment: .topTrailing) { removeButton }
+        .scaleEffect(isDragging ? 1.04 : (isTargeted ? 1.02 : 1.0))
+        .opacity(isInactive && !isDragging ? 0.4 : 1.0)
+        .shadow(color: shadowColor, radius: isDragging ? 18 : 0, x: 0, y: isDragging ? 8 : 0)
+        .modifier(WobbleModifier(isActive: isWobbling))
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
+        .animation(.easeInOut(duration: 0.15), value: isTargeted)
+        .animation(.easeInOut(duration: 0.15), value: isInactive)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+        .accessibilityHint("Drag onto another card to pay")
+    }
+
+    // MARK: - Full layout (default)
+
+    private var fullBody: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
             // Top row: color dot + name
             HStack(spacing: DesignSystem.Spacing.sm) {
@@ -67,19 +93,34 @@ struct ParticipantCard: View {
         .padding(.horizontal, DesignSystem.Spacing.md)
         .padding(.vertical, DesignSystem.Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(cardBackground)
-        .overlay(targetOverlay)
-        .overlay(alignment: .topTrailing) { removeButton }
-        .scaleEffect(isDragging ? 1.04 : (isTargeted ? 1.02 : 1.0))
-        .opacity(isInactive && !isDragging ? 0.4 : 1.0)
-        .shadow(color: shadowColor, radius: isDragging ? 18 : 0, x: 0, y: isDragging ? 8 : 0)
-        .modifier(WobbleModifier(isActive: isWobbling))
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
-        .animation(.easeInOut(duration: 0.15), value: isTargeted)
-        .animation(.easeInOut(duration: 0.15), value: isInactive)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityDescription)
-        .accessibilityHint("Drag onto another card to pay")
+    }
+
+    // MARK: - Compact horizontal layout (used for Bank/All when dice mode is on)
+
+    private var compactBody: some View {
+        HStack(spacing: DesignSystem.Spacing.sm) {
+            Circle()
+                .fill(color)
+                .frame(width: 12, height: 12)
+
+            Text(name)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundColor(.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+
+            Spacer(minLength: DesignSystem.Spacing.sm)
+
+            if balance == nil, !participant.isAll {
+                Text(noBalancePlaceholder)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(color)
+                    .kerning(1.4)
+            }
+        }
+        .padding(.horizontal, DesignSystem.Spacing.md)
+        .padding(.vertical, DesignSystem.Spacing.sm)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder

@@ -28,6 +28,7 @@
 		77E04C17DDD8E04DE151C64C /* AddPlayerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D640431F6BB53E66EF44F48 /* AddPlayerSheet.swift */; };
 		876FF00B4B01946DFD42FE40 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F54EB8C1912BDD45586D4 /* SettingsView.swift */; };
 		8E5A476787BB3457DA3698EC /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3604B53B1EE772071170C97F /* AppState.swift */; };
+		929F00C670A0A443B7C8E4C1 /* DiceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA8193E2F4A953582019A9 /* DiceCard.swift */; };
 		95B3979F2841B374C75FC5A4 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543FD04BC7C96F28ADE3C4F9 /* Player.swift */; };
 		A2BA50070B8E90A7DDCAC891 /* Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D6ADBE273E0FD71E9CE6A4 /* Participant.swift */; };
 		A3F70D8DB086589801D7609E /* TipJarStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70B6363D692A170BA4549D1 /* TipJarStore.swift */; };
@@ -53,6 +54,7 @@
 		3604B53B1EE772071170C97F /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		39A803AAF6F0D46B90617386 /* SessionPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistence.swift; sourceTree = "<group>"; };
 		3B321D4BD6809FD12BCD4CC4 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		41FA8193E2F4A953582019A9 /* DiceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiceCard.swift; sourceTree = "<group>"; };
 		42AEC6AFB2228E24BD2B0EEF /* SupportDevelopmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportDevelopmentView.swift; sourceTree = "<group>"; };
 		5133719FC115207BCC75E4DC /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		543FD04BC7C96F28ADE3C4F9 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 		094CEE23C68CFB70561C0B2C /* Game */ = {
 			isa = PBXGroup;
 			children = (
+				41FA8193E2F4A953582019A9 /* DiceCard.swift */,
 				3B321D4BD6809FD12BCD4CC4 /* GameView.swift */,
 				0B90AB191F84C74E65271D05 /* HistoryStrip.swift */,
 				AB57169CB0ABE677211B2AD8 /* ParticipantCard.swift */,
@@ -282,6 +285,7 @@
 				6F3CE6D64B809D53141FD861 /* ButtonStyles.swift in Sources */,
 				5AA22B7ABAE33A3A7325726B /* Card.swift in Sources */,
 				EEC89EB7A5E5187F000B0A13 /* DesignSystem.swift in Sources */,
+				929F00C670A0A443B7C8E4C1 /* DiceCard.swift in Sources */,
 				20412CFB6273A9C0D2EAEE1F /* GameSession.swift in Sources */,
 				D4C760CB71DC6368AF9D5A32 /* GameView.swift in Sources */,
 				42BAE1E6C8D5825CAAB2F1C6 /* HapticManager.swift in Sources */,

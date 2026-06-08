@@ -70,6 +70,8 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var gameDefaultsSection: some View {
+        @Bindable var settings = settings
+
         sectionHeader("GAME DEFAULTS")
         VStack(spacing: DesignSystem.Spacing.sm) {
             NavigationLink {
@@ -93,6 +95,28 @@ struct SettingsView: View {
                 )
             }
             .buttonStyle(.plain)
+
+            Card {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    IconContainer(systemName: "die.face.5",
+                                  tint: .textPrimary,
+                                  backgroundColor: Color.gray.opacity(0.15))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show dice card")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.textPrimary)
+                        Text("Adds a tappable two-die roller to the game grid.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.textSecondary)
+                    }
+                    Spacer(minLength: 0)
+                    Toggle("", isOn: $settings.diceEnabled)
+                        .labelsHidden()
+                        .tint(.blue)
+                        .fixedSize()
+                        .scaleEffect(0.8)
+                }
+            }
         }
     }
 

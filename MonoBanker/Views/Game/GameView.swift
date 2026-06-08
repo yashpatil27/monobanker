@@ -7,6 +7,7 @@ import SwiftUI
 
 struct GameView: View {
     @Bindable var session: GameSession
+    @Environment(AppSettings.self) private var settings
     let onEndGame: () -> Void
 
     @State private var draggingId: Participant?
@@ -28,6 +29,10 @@ struct GameView: View {
     /// Live preview of the reordered player list while a reorder drag is in flight.
     /// `nil` outside of an active reorder — fall back to `session.players` for rendering.
     @State private var reorderedPlayers: [Player]?
+
+    // Dice card state (only used when settings.diceEnabled is true).
+    @State private var diceLeft: Int = 1
+    @State private var diceRight: Int = 1
 
     /// During a reorder drag, render from the in-flight preview order instead of session.
     private var effectivePlayers: [Player] {
@@ -196,6 +201,8 @@ struct GameView: View {
 
     /// Top row: vertical stack of 3 buttons on the left, then Bank, then All.
     /// In rearrange mode the side column collapses to a single Done button.
+    /// When the dice card is enabled, Bank and All stack vertically into a single
+    /// half-height column and the dice card occupies the third column.
     @ViewBuilder
     private func topGridRow(
         rowH: CGFloat,
@@ -209,11 +216,34 @@ struct GameView: View {
             sideColumn(buttonSize: buttonSize, buttonSpacing: buttonSpacing)
                 .frame(width: sideColumnW, height: rowH, alignment: .center)
 
-            cardView(for: .bank)
-                .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+            if settings.diceEnabled {
+                // Bank stays full-size on its own.
+                cardView(for: .bank)
+                    .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
 
-            cardView(for: .all)
+                // All + Dice share a half-height stacked column.
+                VStack(spacing: DesignSystem.Spacing.sm) {
+                    cardView(for: .all, compact: true)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    DiceCard(left: diceLeft, right: diceRight, onRoll: rollDice)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
                 .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+            } else {
+                cardView(for: .bank)
+                    .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+
+                cardView(for: .all)
+                    .frame(maxWidth: .infinity, minHeight: rowH, maxHeight: rowH)
+            }
+        }
+    }
+
+    private func rollDice() {
+        HapticManager.shared.mediumImpact()
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+            diceLeft = Int.random(in: 1...6)
+            diceRight = Int.random(in: 1...6)
         }
     }
 
@@ -282,7 +312,7 @@ struct GameView: View {
     // MARK: - Card factory + drag/drop
 
     @ViewBuilder
-    private func cardView(for participant: Participant) -> some View {
+    private func cardView(for participant: Participant, compact: Bool = false) -> some View {
         let isTargeted = hoveredTarget == participant && draggingId != participant && draggingId != nil
         let wobble = isRearranging && participantIsPlayer(participant)
         let removable = wobble
@@ -299,7 +329,8 @@ struct GameView: View {
             isInactive: false,
             isWobbling: wobble,
             showRemove: removable,
-            onRemove: removable ? { removePlayer(participant) } : nil
+            onRemove: removable ? { removePlayer(participant) } : nil,
+            isCompact: compact
         )
         .opacity(beingReordered ? 0.0 : 1.0)
         .background(
