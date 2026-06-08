@@ -48,9 +48,9 @@ Counting paper bills, finding change, arguing about who paid what — it slows t
 
 ### Optional features
 
-- **Dice card** — turn on in Settings → Game Defaults to add a tappable two-die roller right beside the Bank card. Tap to roll two dice (1–6 each), with a bouncy SF Symbol animation every time, even if you roll the same number twice.
-- **Default players** — save up to 8 names and colors that automatically pre-fill the New Game screen, so you never type the same names again.
-- **Default starting balance** — set your usual buy-in once (Monopoly's classic $1500, your own $5000 cash-game, whatever).
+- **Dice card** — turn on in Settings → Game Preferences to add a tappable two-die roller right beside the Bank card. Tap to roll two dice (1–6 each), with a bouncy SF Symbol animation every time, even if you roll the same number twice.
+- **Saved players** — save up to 8 names and colors that automatically pre-fill the New Game screen, so you never type the same names again.
+- **Starting balance** — set your usual buy-in once (Monopoly's classic $1500, your own $5000 cash-game, whatever).
 - **Haptic feedback toggle** — turn off vibration if you find it distracting.
 - **Game state persistence** — kill the app mid-game, come back hours or days later, and the game picks up exactly where you left it (balances, transaction log, player order, everything). Tap **Continue Game** on the launch screen.
 

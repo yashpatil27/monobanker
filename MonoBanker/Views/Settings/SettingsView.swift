@@ -72,14 +72,14 @@ struct SettingsView: View {
     private var gameDefaultsSection: some View {
         @Bindable var settings = settings
 
-        sectionHeader("GAME DEFAULTS")
+        sectionHeader("GAME PREFERENCES")
         VStack(spacing: DesignSystem.Spacing.sm) {
             NavigationLink {
                 DefaultBalanceView()
             } label: {
                 infoRow(
                     icon: "banknote",
-                    title: "Change Default Balance",
+                    title: "Starting Balance",
                     trailing: "$\(settings.defaultStartingBalance)"
                 )
             }
@@ -90,7 +90,7 @@ struct SettingsView: View {
             } label: {
                 infoRow(
                     icon: "person.2",
-                    title: "Change Default Players",
+                    title: "Saved Players",
                     trailing: "\(settings.defaultPlayers.count) / \(AppSettings.maxDefaultPlayers)"
                 )
             }
@@ -382,7 +382,7 @@ struct DefaultBalanceView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        Text("DEFAULT STARTING BALANCE")
+                        Text("STARTING BALANCE")
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(.textSecondary)
                             .kerning(1.2)
@@ -439,7 +439,7 @@ struct DefaultBalanceView: View {
 
             Spacer()
 
-            Text("Default Balance")
+            Text("Starting Balance")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.textPrimary)
 
@@ -469,7 +469,7 @@ struct DefaultPlayersView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         HStack {
-                            Text("DEFAULT PLAYERS")
+                            Text("SAVED PLAYERS")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.textSecondary)
                                 .kerning(1.2)
@@ -526,7 +526,7 @@ struct DefaultPlayersView: View {
 
             Spacer()
 
-            Text("Default Players")
+            Text("Saved Players")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.textPrimary)
 
