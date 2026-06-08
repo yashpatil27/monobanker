@@ -625,31 +625,38 @@ struct AboutView: View {
             VStack(spacing: 0) {
                 header
 
-                VStack(spacing: DesignSystem.Spacing.lg) {
-                    Spacer()
+                Spacer()
 
+                // Wordmark — mirrors LaunchView's icon + title + tagline lockup.
+                VStack(spacing: DesignSystem.Spacing.xs) {
                     Image("AppIconImage")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 112, height: 112)
                         .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.4), radius: 18, y: 7)
+                        .padding(.bottom, -16)
 
                     Text("MonoBanker")
-                        .font(.system(size: 28, weight: .semibold, design: .rounded))
+                        .font(.system(size: 36, weight: .semibold, design: .rounded))
                         .foregroundColor(.textPrimary)
-
-                    Text(AboutView.versionString)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.textSecondary)
+                        .kerning(-0.5)
 
                     Text("Cash, for the table.")
-                        .font(.system(size: 14))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.textSecondary)
-                        .padding(.top, DesignSystem.Spacing.sm)
 
-                    Spacer()
+                    Text(AboutView.versionString)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.textSecondary)
+                        .padding(.top, DesignSystem.Spacing.xs)
                 }
-                .padding(.horizontal, DesignSystem.Spacing.xl)
+
+                Spacer()
             }
         }
         .toolbar(.hidden, for: .navigationBar)
