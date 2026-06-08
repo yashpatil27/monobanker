@@ -53,6 +53,7 @@ schemes:
         MonoBanker: all
     run:
       config: Debug
+      storeKitConfiguration: MonoBanker/MonoBanker.storekit
     test:
       config: Debug
     profile:
