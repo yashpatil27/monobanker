@@ -78,6 +78,59 @@ final class GameSession {
         return 0
     }
 
+    /// Quick-tap presets shown above the numpad on the transaction overlay.
+    ///
+    /// Rules:
+    /// - Bank involved (either side): fixed `[50, 100, 150, 200]`.
+    /// - All involved (either side): fixed `[10, 50]`.
+    /// - Player → Player: the most recent 4 unique amounts the recipient has been
+    ///   directly paid by another player AND has received that exact amount **at
+    ///   least twice** (so one-off trades don't pollute the suggestions). Padded
+    ///   with `[10, 20, 30, 40]` when fewer.
+    func suggestedAmounts(payer: Participant, recipient: Participant) -> [Int] {
+        if payer.isBank || recipient.isBank { return [50, 100, 150, 200] }
+        if payer.isAll || recipient.isAll  { return [10, 50] }
+
+        guard case .player(let recipientID) = recipient else { return [] }
+
+        // Predicate: is `tx` a direct player-to-player payment received by `recipientID`?
+        func receivedHere(_ tx: Transaction) -> Bool {
+            guard case .player(let payerID) = tx.from, payerID != recipientID,
+                  case .player(let toID) = tx.to, toID == recipientID else { return false }
+            return true
+        }
+
+        // Pass 1: count how often each amount has been paid to this recipient.
+        var occurrences: [Int: Int] = [:]
+        for tx in transactions where receivedHere(tx) {
+            occurrences[tx.amount, default: 0] += 1
+        }
+        // Amounts that have shown up at least twice — these are the only candidates.
+        let eligible = Set(occurrences.filter { $0.value >= 2 }.keys)
+
+        // Pass 2: walk newest → oldest, pick the 4 most recent unique eligible amounts.
+        var recent: [Int] = []
+        var seen: Set<Int> = []
+        for tx in transactions.reversed() where receivedHere(tx) {
+            guard eligible.contains(tx.amount), !seen.contains(tx.amount) else { continue }
+            recent.append(tx.amount)
+            seen.insert(tx.amount)
+            if recent.count >= 4 { break }
+        }
+
+        // Pad with [10, 20, 30, 40] in order, skipping any already present.
+        for fallback in [10, 20, 30, 40] {
+            if recent.count >= 4 { break }
+            if !seen.contains(fallback) {
+                recent.append(fallback)
+                seen.insert(fallback)
+            }
+        }
+
+        // Display the chips in ascending order so the row reads small → large.
+        return recent.sorted()
+    }
+
     /// The signed change to this player's balance from the most recent transaction
     /// that involved them. `nil` if they haven't participated in any transaction yet.
     func lastDelta(for playerID: UUID) -> Int? {

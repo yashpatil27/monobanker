@@ -59,6 +59,10 @@ struct TransactionOverlay: View {
 
                 Spacer(minLength: 0)
 
+                presetChips
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.md)
+
                 Numpad { key in
                     handleKey(key)
                 }
@@ -174,6 +178,36 @@ struct TransactionOverlay: View {
                 }
             }
         }
+    }
+
+    private var presetChips: some View {
+        let amounts = session.suggestedAmounts(payer: payer, recipient: recipient)
+        return HStack(spacing: DesignSystem.Spacing.sm) {
+            ForEach(amounts, id: \.self) { value in
+                Button {
+                    HapticManager.shared.lightImpact()
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        amount = value
+                    }
+                } label: {
+                    Text("$\(value)")
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(.textPrimary)
+                        .monospacedDigit()
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule()
+                                .fill(Color.gray.opacity(DesignSystem.Opacity.subtle))
+                                .overlay(
+                                    Capsule().stroke(Color.gray.opacity(DesignSystem.Opacity.medium), lineWidth: 1)
+                                )
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var actionButtons: some View {
