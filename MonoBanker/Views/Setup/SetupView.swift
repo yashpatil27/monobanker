@@ -7,10 +7,12 @@ import SwiftUI
 
 struct SetupView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppSettings.self) private var settings
     let onStart: (_ players: [Player], _ startingBalance: Int) -> Void
 
     @State private var startingBalanceText: String = "1500"
     @State private var draftPlayers: [Player] = []
+    @State private var didPrefill = false
     @State private var newPlayerName: String = ""
     @State private var newPlayerColor: PlayerColor = .red
     @FocusState private var newNameFocused: Bool
@@ -52,7 +54,25 @@ struct SetupView: View {
             }
         }
         .onAppear {
+            applyDefaultsIfNeeded()
             if draftPlayers.isEmpty { newPlayerColor = nextAvailableColor }
+        }
+    }
+
+    /// Pull defaults from AppSettings on first appearance: starting balance and roster.
+    private func applyDefaultsIfNeeded() {
+        guard !didPrefill else { return }
+        didPrefill = true
+
+        // Default starting balance.
+        startingBalanceText = String(settings.defaultStartingBalance)
+
+        // Default players (only when the draft is empty).
+        if draftPlayers.isEmpty, !settings.defaultPlayers.isEmpty {
+            draftPlayers = settings.defaultPlayers.map { dp in
+                Player(name: dp.name, color: dp.color, balance: 0)
+            }
+            newPlayerColor = nextAvailableColor
         }
     }
 
@@ -311,4 +331,5 @@ private struct ColorSwatch: View {
 #Preview {
     SetupView(onStart: { _, _ in })
         .environment(AppState())
+        .environment(AppSettings())
 }

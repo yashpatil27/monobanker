@@ -9,6 +9,7 @@ struct LaunchView: View {
     @Environment(AppState.self) private var appState
     let onNewGame: () -> Void
     let onContinue: () -> Void
+    @State private var showingSettings = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -54,23 +55,48 @@ struct LaunchView: View {
                     .buttonStyle(BrandButtonStyle())
                 }
 
-                Button {
-                    HapticManager.shared.lightImpact()
-                    onNewGame()
-                } label: {
-                    Text("New Game")
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    Button {
+                        HapticManager.shared.lightImpact()
+                        onNewGame()
+                    } label: {
+                        Text("New Game")
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+
+                    Button {
+                        HapticManager.shared.lightImpact()
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 22, weight: .medium))
+                            .foregroundColor(.brandPrimary)
+                            .frame(width: 60, height: 60)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                    .fill(Color.brandPrimary.opacity(0.15))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                            .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1)
+                                    )
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(PrimaryButtonStyle())
             }
             .padding(.horizontal, DesignSystem.Spacing.xl)
             .padding(.bottom, DesignSystem.Spacing.xxxl)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.bgPrimary.ignoresSafeArea())
+        .fullScreenCover(isPresented: $showingSettings) {
+            SettingsView()
+        }
     }
 }
 
 #Preview {
     LaunchView(onNewGame: {}, onContinue: {})
         .environment(AppState())
+        .environment(AppSettings())
 }
