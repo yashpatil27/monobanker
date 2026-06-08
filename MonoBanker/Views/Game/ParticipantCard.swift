@@ -19,6 +19,8 @@ struct ParticipantCard: View {
     var onRemove: (() -> Void)? = nil             // tap handler for the remove X
     var isCompact: Bool = false                   // half-height horizontal layout for Bank/All in dice mode
 
+    @Environment(AppSettings.self) private var settings
+
     var body: some View {
         Group {
             if isCompact {
@@ -66,19 +68,21 @@ struct ParticipantCard: View {
             // Balance or Bank/All tag
             if let balance {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("$\(balance)")
-                        .font(.system(size: 28, weight: .medium, design: .rounded))
-                        .foregroundColor(.textPrimary)
-                        .contentTransition(.numericText(value: Double(balance)))
-                        .animation(.easeOut(duration: 0.3), value: balance)
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
+                    HStack(spacing: 0) {
+                        CurrencySymbol()
+                        Text(balance.formatted())
+                            .contentTransition(.numericText(value: Double(balance)))
+                    }
+                    .font(.system(size: 28, weight: .medium, design: .rounded))
+                    .foregroundColor(.textPrimary)
+                    .animation(.easeOut(duration: 0.3), value: balance)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
 
-                    Text(deltaDisplay(lastChange))
+                    deltaView(lastChange)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(deltaColor(lastChange))
-                        .contentTransition(.numericText(value: Double(lastChange ?? 0)))
                         .animation(.easeOut(duration: 0.3), value: lastChange)
                         .monospacedDigit()
                         .lineLimit(1)
@@ -148,7 +152,7 @@ struct ParticipantCard: View {
 
     private var accessibilityDescription: String {
         if let balance {
-            return "\(name), balance $\(balance)"
+            return "\(name), balance \(settings.format(balance))"
         } else if participant.isAll {
             return "\(name), every other player"
         } else {
@@ -164,10 +168,16 @@ struct ParticipantCard: View {
         }
     }
 
-    private func deltaDisplay(_ delta: Int?) -> String {
-        guard let delta else { return "$0" }
-        let sign = delta >= 0 ? "+" : "-"
-        return "\(sign)$\(abs(delta))"
+    @ViewBuilder
+    private func deltaView(_ delta: Int?) -> some View {
+        HStack(spacing: 0) {
+            if let delta {
+                Text(delta >= 0 ? "+" : "-")
+            }
+            CurrencySymbol()
+            Text(abs(delta ?? 0).formatted())
+                .contentTransition(.numericText(value: Double(delta ?? 0)))
+        }
     }
 
     private func deltaColor(_ delta: Int?) -> Color {

@@ -77,11 +77,13 @@ struct SettingsView: View {
             NavigationLink {
                 DefaultBalanceView()
             } label: {
-                infoRow(
-                    icon: "banknote",
-                    title: "Starting Balance",
-                    trailing: "$\(settings.defaultStartingBalance)"
-                )
+                infoRow(icon: "banknote", title: "Starting Balance") {
+                    HStack(spacing: 0) {
+                        CurrencySymbol()
+                        Text(settings.defaultStartingBalance.formatted())
+                    }
+                    .monospacedDigit()
+                }
             }
             .buttonStyle(.plain)
 
@@ -92,6 +94,17 @@ struct SettingsView: View {
                     icon: "person.2",
                     title: "Saved Players",
                     trailing: "\(settings.defaultPlayers.count) / \(AppSettings.maxDefaultPlayers)"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                DisplayCurrencyView()
+            } label: {
+                infoRow(
+                    icon: "dollarsign.circle",
+                    title: "Display Currency",
+                    trailing: settings.displayCurrency.displayName
                 )
             }
             .buttonStyle(.plain)
@@ -218,6 +231,18 @@ struct SettingsView: View {
     }
 
     private func infoRow(icon: String, title: String, trailing: String? = nil) -> some View {
+        infoRow(icon: icon, title: title) {
+            if let trailing {
+                Text(trailing)
+            }
+        }
+    }
+
+    private func infoRow<Trailing: View>(
+        icon: String,
+        title: String,
+        @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
         HStack(spacing: DesignSystem.Spacing.md) {
             IconContainer(systemName: icon,
                           tint: .textPrimary,
@@ -226,11 +251,9 @@ struct SettingsView: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.textPrimary)
             Spacer()
-            if let trailing {
-                Text(trailing)
-                    .font(.system(size: 13))
-                    .foregroundColor(.textSecondary)
-            }
+            trailing()
+                .font(.system(size: 13))
+                .foregroundColor(.textSecondary)
             Image(systemName: "chevron.right")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(.textSecondary)
@@ -416,7 +439,7 @@ struct DefaultBalanceView: View {
 
                         Card {
                             HStack(spacing: DesignSystem.Spacing.sm) {
-                                Text("$")
+                                CurrencySymbol()
                                     .font(.system(size: 32, weight: .medium))
                                     .foregroundColor(.brandPrimary)
 
@@ -753,5 +776,115 @@ struct AboutView: View {
         .padding(.horizontal, DesignSystem.Spacing.lg)
         .padding(.top, 2)
         .padding(.bottom, DesignSystem.Spacing.md)
+    }
+}
+
+// MARK: - DisplayCurrencyView
+
+struct DisplayCurrencyView: View {
+    @Environment(AppSettings.self) private var settings
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        @Bindable var settings = settings
+
+        ZStack {
+            Color.bgPrimary.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                header
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        Text("DISPLAY CURRENCY")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.textSecondary)
+                            .kerning(1.2)
+
+                        Text("Replaces the dollar sign across the app. Display only — amounts are not converted.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.textSecondary)
+                            .padding(.bottom, DesignSystem.Spacing.xs)
+
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            ForEach(Currency.allCases) { currency in
+                                CurrencyOptionRow(
+                                    currency: currency,
+                                    isSelected: settings.displayCurrency == currency
+                                ) {
+                                    HapticManager.shared.selectionChanged()
+                                    settings.displayCurrency = currency
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.vertical, DesignSystem.Spacing.md)
+                    .padding(.bottom, DesignSystem.Spacing.xxxl)
+                }
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
+        HStack {
+            Button {
+                HapticManager.shared.lightImpact()
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+
+            Spacer()
+
+            Text("Display Currency")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.textPrimary)
+
+            Spacer()
+
+            Spacer().frame(width: 44)
+        }
+        .padding(.horizontal, DesignSystem.Spacing.lg)
+        .padding(.top, 2)
+        .padding(.bottom, DesignSystem.Spacing.md)
+    }
+}
+
+private struct CurrencyOptionRow: View {
+    let currency: Currency
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Card {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    Text(currency.symbol)
+                        .font(.system(size: 24, weight: .medium, design: .rounded))
+                        .foregroundColor(.brandPrimary)
+                        .rotationEffect(currency.isRotated ? .degrees(180) : .degrees(0))
+                        .frame(width: 32, alignment: .center)
+
+                    Text(currency.displayName)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.textPrimary)
+
+                    Spacer()
+
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.brandPrimary)
+                    }
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 }

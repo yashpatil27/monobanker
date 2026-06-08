@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00B1D64C28D299AF8CBBD35A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920B71B578D7A35DAE2C3E79 /* RootView.swift */; };
 		02427A13DB06701CE062ACD1 /* MonoBankerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA1FF8965CFECC9F01E4864 /* MonoBankerApp.swift */; };
+		0D082F6F886370A3BB3090D0 /* CurrencySymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095BA748F7025F4D83BA09AA /* CurrencySymbol.swift */; };
 		149590FFB6D30C358DFE14C6 /* PlayerColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096CB650138388D26DB90948 /* PlayerColor.swift */; };
 		19C4546DA0F9D03DEC4145FC /* MenuSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0929F81BF6A43076A77E099C /* MenuSheet.swift */; };
 		20412CFB6273A9C0D2EAEE1F /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9587E3C5C11071A731CCC11A /* GameSession.swift */; };
@@ -36,6 +37,7 @@
 		B46BE55F34BD4E2A2386F03F /* IconContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645C4DB5D7308907ED0611B7 /* IconContainer.swift */; };
 		D00D6F6D3B5109BC6919EAF1 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBE32C7952B7DADEEA37918 /* SetupView.swift */; };
 		D4C760CB71DC6368AF9D5A32 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B321D4BD6809FD12BCD4CC4 /* GameView.swift */; };
+		DA2B84E6EB8B9CF819A20F7D /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E9BBB4D3CE50F9A2CD95D /* Currency.swift */; };
 		EEC89EB7A5E5187F000B0A13 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47471A3FBA1B8D73217BD77 /* DesignSystem.swift */; };
 		F00223F12CEC73DDCE9A69E9 /* TransactionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FF122D720A7321A2732BAC /* TransactionOverlay.swift */; };
 		F04994D6FD70781DEB136BF3 /* Numpad.swift in Sources */ = {isa = PBXBuildFile; fileRef = E724DD71536FCED756F3E606 /* Numpad.swift */; };
@@ -43,6 +45,7 @@
 
 /* Begin PBXFileReference section */
 		0929F81BF6A43076A77E099C /* MenuSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSheet.swift; sourceTree = "<group>"; };
+		095BA748F7025F4D83BA09AA /* CurrencySymbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySymbol.swift; sourceTree = "<group>"; };
 		096CB650138388D26DB90948 /* PlayerColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerColor.swift; sourceTree = "<group>"; };
 		0B5E588687E7BEDC45B4FE03 /* MonoBanker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MonoBanker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B90AB191F84C74E65271D05 /* HistoryStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStrip.swift; sourceTree = "<group>"; };
@@ -71,6 +74,7 @@
 		B3F73BD5980606ED04A12E0C /* BrandColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandColors.swift; sourceTree = "<group>"; };
 		B70B6363D692A170BA4549D1 /* TipJarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipJarStore.swift; sourceTree = "<group>"; };
 		BEA1FF8965CFECC9F01E4864 /* MonoBankerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonoBankerApp.swift; sourceTree = "<group>"; };
+		C10E9BBB4D3CE50F9A2CD95D /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		D47471A3FBA1B8D73217BD77 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		DD17EE7A50D30A33114AEBC0 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		E5FF122D720A7321A2732BAC /* TransactionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionOverlay.swift; sourceTree = "<group>"; };
@@ -96,6 +100,14 @@
 				ECBE32C7952B7DADEEA37918 /* SetupView.swift */,
 			);
 			path = Setup;
+			sourceTree = "<group>";
+		};
+		56F0E91321961594DE202040 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				095BA748F7025F4D83BA09AA /* CurrencySymbol.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		5E5E38D45B377867624C3DDF /* Transaction */ = {
@@ -134,6 +146,7 @@
 			children = (
 				84F284B1CA11627B269EDDC5 /* AppSettings.swift */,
 				3604B53B1EE772071170C97F /* AppState.swift */,
+				C10E9BBB4D3CE50F9A2CD95D /* Currency.swift */,
 				9587E3C5C11071A731CCC11A /* GameSession.swift */,
 				83D6ADBE273E0FD71E9CE6A4 /* Participant.swift */,
 				543FD04BC7C96F28ADE3C4F9 /* Player.swift */,
@@ -183,6 +196,7 @@
 			children = (
 				7C3904C00357667232FAAF39 /* LaunchView.swift */,
 				920B71B578D7A35DAE2C3E79 /* RootView.swift */,
+				56F0E91321961594DE202040 /* Components */,
 				094CEE23C68CFB70561C0B2C /* Game */,
 				BFE64CBEF2A9F837404C9F80 /* History */,
 				853832CD85510D2592696B4B /* Menu */,
@@ -284,6 +298,8 @@
 				5D15773E9D0B8BE9973B3299 /* BrandColors.swift in Sources */,
 				6F3CE6D64B809D53141FD861 /* ButtonStyles.swift in Sources */,
 				5AA22B7ABAE33A3A7325726B /* Card.swift in Sources */,
+				DA2B84E6EB8B9CF819A20F7D /* Currency.swift in Sources */,
+				0D082F6F886370A3BB3090D0 /* CurrencySymbol.swift in Sources */,
 				EEC89EB7A5E5187F000B0A13 /* DesignSystem.swift in Sources */,
 				929F00C670A0A443B7C8E4C1 /* DiceCard.swift in Sources */,
 				20412CFB6273A9C0D2EAEE1F /* GameSession.swift in Sources */,
@@ -350,7 +366,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = REDACTED;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -420,7 +436,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = REDACTED;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -455,7 +471,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = REDACTED;
 				INFOPLIST_FILE = MonoBanker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -475,7 +490,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = REDACTED;
 				INFOPLIST_FILE = MonoBanker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

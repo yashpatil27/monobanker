@@ -45,6 +45,9 @@ final class AppSettings {
     var suggestedAmountsEnabled: Bool {
         didSet { persist() }
     }
+    var displayCurrency: Currency {
+        didSet { persist() }
+    }
 
     init() {
         let snapshot = SettingsPersistence.load()
@@ -53,8 +56,18 @@ final class AppSettings {
         self.hapticsEnabled = snapshot?.hapticsEnabled ?? true
         self.diceEnabled = snapshot?.diceEnabled ?? false
         self.suggestedAmountsEnabled = snapshot?.suggestedAmountsEnabled ?? true
+        self.displayCurrency = snapshot?.displayCurrency ?? .usd
         // Keep HapticManager in sync with persisted setting at launch.
         HapticManager.shared.isEnabled = self.hapticsEnabled
+    }
+
+    /// Renders an integer amount with the user's selected currency symbol
+    /// for plain-text contexts (accessibility labels, alerts, etc.). The
+    /// inverted-Won variant can't be rotated in a `String`, so it appears
+    /// as a normal Won glyph here; visible Text uses `CurrencySymbol` for
+    /// proper rotation. Digits use locale-aware thousands separators.
+    func format(_ amount: Int, sign: String = "") -> String {
+        "\(sign)\(displayCurrency.symbol)\(amount.formatted())"
     }
 
     var usedDefaultColors: Set<PlayerColor> {
@@ -93,7 +106,8 @@ final class AppSettings {
                 defaultStartingBalance: defaultStartingBalance,
                 hapticsEnabled: hapticsEnabled,
                 diceEnabled: diceEnabled,
-                suggestedAmountsEnabled: suggestedAmountsEnabled
+                suggestedAmountsEnabled: suggestedAmountsEnabled,
+                displayCurrency: displayCurrency
             )
         )
     }
@@ -109,6 +123,8 @@ struct AppSettingsSnapshot: Codable {
     let diceEnabled: Bool?
     /// Optional for backward-compat with snapshots saved before this field existed.
     let suggestedAmountsEnabled: Bool?
+    /// Optional for backward-compat with snapshots saved before this field existed.
+    let displayCurrency: Currency?
 }
 
 enum SettingsPersistence {

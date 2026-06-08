@@ -131,16 +131,19 @@ struct TransactionOverlay: View {
     }
 
     private var amountDisplay: some View {
-        Text("$\(amount)")
-            .font(.system(size: 64, weight: .semibold, design: .rounded))
-            .foregroundColor(.textPrimary)
-            .contentTransition(.numericText(value: Double(amount)))
-            .animation(.easeOut(duration: 0.2), value: amount)
-            .monospacedDigit()
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
-            .padding(.horizontal, DesignSystem.Spacing.xl)
-            .offset(x: shake)
+        HStack(spacing: 0) {
+            CurrencySymbol()
+            Text(amount.formatted())
+                .contentTransition(.numericText(value: Double(amount)))
+        }
+        .font(.system(size: 64, weight: .semibold, design: .rounded))
+        .foregroundColor(.textPrimary)
+        .animation(.easeOut(duration: 0.2), value: amount)
+        .monospacedDigit()
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .padding(.horizontal, DesignSystem.Spacing.xl)
+        .offset(x: shake)
     }
 
     @ViewBuilder
@@ -148,19 +151,28 @@ struct TransactionOverlay: View {
         VStack(spacing: 4) {
             // Total breakdown when All is involved.
             if involvesAll, amount > 0 {
-                Text("$\(amount) × \(othersCount) = $\(totalAmount) total")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.textSecondary)
-                    .monospacedDigit()
+                HStack(spacing: 0) {
+                    CurrencySymbol()
+                    Text("\(amount.formatted()) × \(othersCount) = ")
+                    CurrencySymbol()
+                    Text("\(totalAmount.formatted()) total")
+                }
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.textSecondary)
+                .monospacedDigit()
             }
 
             // Payer affordability hint.
             if case .player = payer, let bal = payerBalance {
                 let exceeds = totalAmount > bal
-                Text("\(payerName) balance: $\(bal)")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(exceeds ? .error : .textSecondary)
-                    .monospacedDigit()
+                HStack(spacing: 0) {
+                    Text("\(payerName) balance: ")
+                    CurrencySymbol()
+                    Text(bal.formatted())
+                }
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(exceeds ? .error : .textSecondary)
+                .monospacedDigit()
             } else if payer.isBank {
                 Text("Bank funds: unlimited")
                     .font(.system(size: 12, weight: .medium))
@@ -174,10 +186,14 @@ struct TransactionOverlay: View {
                     .map(\.balance)
                 if let minBal = mins.min() {
                     let exceeds = amount > minBal
-                    Text("Lowest balance: $\(minBal)")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(exceeds ? .error : .textSecondary)
-                        .monospacedDigit()
+                    HStack(spacing: 0) {
+                        Text("Lowest balance: ")
+                        CurrencySymbol()
+                        Text(minBal.formatted())
+                    }
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(exceeds ? .error : .textSecondary)
+                    .monospacedDigit()
                 }
             }
         }
@@ -193,19 +209,22 @@ struct TransactionOverlay: View {
                         amount = value
                     }
                 } label: {
-                    Text("$\(value)")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(.textPrimary)
-                        .monospacedDigit()
-                        .padding(.horizontal, DesignSystem.Spacing.md)
-                        .padding(.vertical, 8)
-                        .background(
-                            Capsule()
-                                .fill(Color.gray.opacity(DesignSystem.Opacity.subtle))
-                                .overlay(
-                                    Capsule().stroke(Color.gray.opacity(DesignSystem.Opacity.medium), lineWidth: 1)
-                                )
-                        )
+                    HStack(spacing: 0) {
+                        CurrencySymbol()
+                        Text(value.formatted())
+                    }
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundColor(.textPrimary)
+                    .monospacedDigit()
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(Color.gray.opacity(DesignSystem.Opacity.subtle))
+                            .overlay(
+                                Capsule().stroke(Color.gray.opacity(DesignSystem.Opacity.medium), lineWidth: 1)
+                            )
+                    )
                 }
                 .buttonStyle(.plain)
             }

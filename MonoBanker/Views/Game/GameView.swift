@@ -138,7 +138,7 @@ struct GameView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Every balance returns to $\(session.startingBalance) and all transactions are cleared.")
+            Text("Every balance returns to \(settings.format(session.startingBalance)) and all transactions are cleared.")
         }
         .alert("End this game?", isPresented: $showingEndConfirm) {
             Button("End Game", role: .destructive) {

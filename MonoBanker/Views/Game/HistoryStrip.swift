@@ -57,9 +57,12 @@ struct HistoryStrip: View {
             Text(session.name(for: tx.to))
                 .foregroundColor(.textPrimary)
             Spacer()
-            Text("$\(tx.amount)")
-                .foregroundColor(.brandPrimary)
-                .monospacedDigit()
+            HStack(spacing: 0) {
+                CurrencySymbol()
+                Text(tx.amount.formatted())
+            }
+            .foregroundColor(.brandPrimary)
+            .monospacedDigit()
         }
         .font(.system(size: 13, weight: .medium))
     }

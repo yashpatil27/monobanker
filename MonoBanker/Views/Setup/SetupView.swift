@@ -117,7 +117,7 @@ struct SetupView: View {
 
             Card {
                 HStack(spacing: DesignSystem.Spacing.sm) {
-                    Text("$")
+                    CurrencySymbol()
                         .font(.system(size: 32, weight: .medium))
                         .foregroundColor(.brandPrimary)
 

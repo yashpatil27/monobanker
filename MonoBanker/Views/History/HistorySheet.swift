@@ -92,10 +92,13 @@ struct HistorySheet: View {
 
                     Spacer()
 
-                    Text("$\(tx.amount)")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(.brandPrimary)
-                        .monospacedDigit()
+                    HStack(spacing: 0) {
+                        CurrencySymbol()
+                        Text(tx.amount.formatted())
+                    }
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.brandPrimary)
+                    .monospacedDigit()
                 }
 
                 Text(relativeTime(for: tx.timestamp))
