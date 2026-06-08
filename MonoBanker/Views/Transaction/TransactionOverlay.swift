@@ -12,6 +12,7 @@ struct TransactionOverlay: View {
     let onCancel: () -> Void
     let onConfirm: (Int) -> Void
 
+    @Environment(AppSettings.self) private var settings
     @State private var amount: Int = 0
     @State private var shake: CGFloat = 0
 
@@ -59,9 +60,11 @@ struct TransactionOverlay: View {
 
                 Spacer(minLength: 0)
 
-                presetChips
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
-                    .padding(.bottom, DesignSystem.Spacing.md)
+                if settings.suggestedAmountsEnabled {
+                    presetChips
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.md)
+                }
 
                 Numpad { key in
                     handleKey(key)

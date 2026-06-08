@@ -117,6 +117,28 @@ struct SettingsView: View {
                         .scaleEffect(0.8)
                 }
             }
+
+            Card {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    IconContainer(systemName: "sparkles",
+                                  tint: .textPrimary,
+                                  backgroundColor: Color.gray.opacity(0.15))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Suggested amounts")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.textPrimary)
+                        Text("Quick-pick chips above the numpad based on recent payments.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.textSecondary)
+                    }
+                    Spacer(minLength: 0)
+                    Toggle("", isOn: $settings.suggestedAmountsEnabled)
+                        .labelsHidden()
+                        .tint(.blue)
+                        .fixedSize()
+                        .scaleEffect(0.8)
+                }
+            }
         }
     }
 

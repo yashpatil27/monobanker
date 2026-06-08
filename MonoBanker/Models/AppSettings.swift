@@ -42,6 +42,9 @@ final class AppSettings {
     var diceEnabled: Bool {
         didSet { persist() }
     }
+    var suggestedAmountsEnabled: Bool {
+        didSet { persist() }
+    }
 
     init() {
         let snapshot = SettingsPersistence.load()
@@ -49,6 +52,7 @@ final class AppSettings {
         self.defaultStartingBalance = snapshot?.defaultStartingBalance ?? 1500
         self.hapticsEnabled = snapshot?.hapticsEnabled ?? true
         self.diceEnabled = snapshot?.diceEnabled ?? false
+        self.suggestedAmountsEnabled = snapshot?.suggestedAmountsEnabled ?? true
         // Keep HapticManager in sync with persisted setting at launch.
         HapticManager.shared.isEnabled = self.hapticsEnabled
     }
@@ -88,7 +92,8 @@ final class AppSettings {
                 defaultPlayers: defaultPlayers,
                 defaultStartingBalance: defaultStartingBalance,
                 hapticsEnabled: hapticsEnabled,
-                diceEnabled: diceEnabled
+                diceEnabled: diceEnabled,
+                suggestedAmountsEnabled: suggestedAmountsEnabled
             )
         )
     }
@@ -102,6 +107,8 @@ struct AppSettingsSnapshot: Codable {
     let hapticsEnabled: Bool
     /// Optional for backward-compat with snapshots saved before this field existed.
     let diceEnabled: Bool?
+    /// Optional for backward-compat with snapshots saved before this field existed.
+    let suggestedAmountsEnabled: Bool?
 }
 
 enum SettingsPersistence {
