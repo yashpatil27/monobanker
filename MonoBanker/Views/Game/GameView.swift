@@ -19,6 +19,7 @@ struct GameView: View {
     @State private var showingEndConfirm = false
     @State private var showingRestartConfirm = false
     @State private var showingAddPlayer = false
+    @State private var showingSettings = false
 
     // Rearrange mode
     @State private var isRearranging = false
@@ -120,6 +121,9 @@ struct GameView: View {
             }
             .presentationDetents([.height(320)])
             .presentationBackground(.black)
+        }
+        .fullScreenCover(isPresented: $showingSettings) {
+            SettingsView()
         }
         .alert("Restart game?", isPresented: $showingRestartConfirm) {
             Button("Restart", role: .destructive) {
@@ -251,8 +255,9 @@ struct GameView: View {
                 sideButton(systemName: "square.grid.2x2", size: buttonSize) {
                     enterRearrangeMode()
                 }
-                sideButton(systemName: "ellipsis", size: buttonSize) {
+                sideButton(systemName: "gearshape.fill", size: buttonSize) {
                     HapticManager.shared.lightImpact()
+                    showingSettings = true
                 }
             }
             .transition(.opacity)
