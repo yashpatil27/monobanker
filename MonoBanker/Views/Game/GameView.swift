@@ -242,10 +242,11 @@ struct GameView: View {
 
     private func rollDice() {
         HapticManager.shared.mediumImpact()
-        diceRollID &+= 1   // ensure .symbolEffect re-triggers even when faces repeat
+        diceRollID &+= 1   // ensure DiceCard re-triggers even when faces repeat
+        let pair = DiceRoller.rollPair()
         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-            diceLeft = Int.random(in: 1...6)
-            diceRight = Int.random(in: 1...6)
+            diceLeft = pair.left
+            diceRight = pair.right
         }
     }
 
