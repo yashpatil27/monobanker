@@ -16,9 +16,9 @@ import StoreKit
 final class TipJarStore {
     /// Product identifiers — must match what you create in App Store Connect.
     static let productIDs: [String] = [
-        "com.monobanker.tip.small",
-        "com.monobanker.tip.medium",
-        "com.monobanker.tip.large"
+        "com.monobanker.tip.small.v2",
+        "com.monobanker.tip.medium.v2",
+        "com.monobanker.tip.large.v2"
     ]
 
     /// Loaded products, sorted ascending by price.

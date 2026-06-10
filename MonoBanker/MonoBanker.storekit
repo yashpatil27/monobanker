@@ -25,7 +25,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.monobanker.tip.small",
+      "productID" : "com.monobanker.tip.small.v2",
       "referenceName" : "Small Tip",
       "type" : "Consumable"
     },
@@ -40,7 +40,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.monobanker.tip.medium",
+      "productID" : "com.monobanker.tip.medium.v2",
       "referenceName" : "Medium Tip",
       "type" : "Consumable"
     },
@@ -55,7 +55,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.monobanker.tip.large",
+      "productID" : "com.monobanker.tip.large.v2",
       "referenceName" : "Big Tip",
       "type" : "Consumable"
     }
