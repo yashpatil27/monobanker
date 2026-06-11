@@ -8,6 +8,7 @@ import SwiftUI
 struct GameView: View {
     @Bindable var session: GameSession
     @Environment(AppSettings.self) private var settings
+    @Environment(CardDecksStore.self) private var cardDecksStore
     let onEndGame: () -> Void
 
     @State private var draggingId: Participant?
@@ -35,6 +36,9 @@ struct GameView: View {
     @State private var diceRight: Int = 1
     @State private var diceRollID: Int = 0
 
+    // Card-deck draw state (only used when settings.cardDecksEnabled is true).
+    @State private var drawnCard: (deckName: String, text: String)?
+
     /// During a reorder drag, render from the in-flight preview order instead of session.
     private var effectivePlayers: [Player] {
         reorderedPlayers ?? session.players
@@ -61,6 +65,14 @@ struct GameView: View {
                 gridArea
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .padding(.vertical, DesignSystem.Spacing.md)
+
+                if settings.cardDecksEnabled {
+                    CardDecksRow(decks: cardDecksStore.decks) { deck in
+                        handleDeckTap(deck)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.sm)
+                }
 
                 HistoryStrip(session: session) { showingHistory = true }
                     .padding(.horizontal, DesignSystem.Spacing.lg)
@@ -130,6 +142,19 @@ struct GameView: View {
         }
         .fullScreenCover(isPresented: $showingSettings) {
             SettingsView()
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { drawnCard != nil },
+            set: { if !$0 { drawnCard = nil } }
+        )) {
+            if let card = drawnCard {
+                CardDrawSheet(
+                    deckName: card.deckName,
+                    cardText: card.text,
+                    onDismiss: { drawnCard = nil }
+                )
+                .presentationBackground(.black.opacity(0.92))
+            }
         }
         .alert("Restart game?", isPresented: $showingRestartConfirm) {
             Button("Restart", role: .destructive) {
@@ -247,6 +272,19 @@ struct GameView: View {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
             diceLeft = pair.left
             diceRight = pair.right
+        }
+    }
+
+    /// Tap handler for a card-deck button: draws a card without
+    /// replacement and presents the reveal sheet, or routes the user to
+    /// Settings if the deck is empty.
+    private func handleDeckTap(_ deck: CardDeck) {
+        if let text = cardDecksStore.draw(fromDeckID: deck.id) {
+            HapticManager.shared.success()
+            drawnCard = (deckName: deck.name, text: text)
+        } else {
+            HapticManager.shared.warning()
+            showingSettings = true
         }
     }
 

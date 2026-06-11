@@ -152,6 +152,35 @@ struct SettingsView: View {
                         .scaleEffect(0.8)
                 }
             }
+
+            Card {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    IconContainer(systemName: "rectangle.stack",
+                                  tint: .textPrimary,
+                                  backgroundColor: Color.gray.opacity(0.15))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Card decks")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.textPrimary)
+                        Text("Two tap-to-draw decks above the history strip. You author the cards.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.textSecondary)
+                    }
+                    Spacer(minLength: 0)
+                    Toggle("", isOn: $settings.cardDecksEnabled)
+                        .labelsHidden()
+                        .tint(.blue)
+                        .fixedSize()
+                        .scaleEffect(0.8)
+                }
+            }
+
+            NavigationLink {
+                CardDecksView()
+            } label: {
+                infoRow(icon: "square.text.square", title: "Edit Card Decks")
+            }
+            .buttonStyle(.plain)
         }
     }
 

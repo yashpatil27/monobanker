@@ -48,6 +48,9 @@ final class AppSettings {
     var displayCurrency: Currency {
         didSet { persist() }
     }
+    var cardDecksEnabled: Bool {
+        didSet { persist() }
+    }
 
     init() {
         let snapshot = SettingsPersistence.load()
@@ -57,6 +60,7 @@ final class AppSettings {
         self.diceEnabled = snapshot?.diceEnabled ?? false
         self.suggestedAmountsEnabled = snapshot?.suggestedAmountsEnabled ?? true
         self.displayCurrency = snapshot?.displayCurrency ?? .usd
+        self.cardDecksEnabled = snapshot?.cardDecksEnabled ?? false
         // Keep HapticManager in sync with persisted setting at launch.
         HapticManager.shared.isEnabled = self.hapticsEnabled
     }
@@ -107,7 +111,8 @@ final class AppSettings {
                 hapticsEnabled: hapticsEnabled,
                 diceEnabled: diceEnabled,
                 suggestedAmountsEnabled: suggestedAmountsEnabled,
-                displayCurrency: displayCurrency
+                displayCurrency: displayCurrency,
+                cardDecksEnabled: cardDecksEnabled
             )
         )
     }
@@ -125,6 +130,8 @@ struct AppSettingsSnapshot: Codable {
     let suggestedAmountsEnabled: Bool?
     /// Optional for backward-compat with snapshots saved before this field existed.
     let displayCurrency: Currency?
+    /// Optional for backward-compat with snapshots saved before this field existed.
+    let cardDecksEnabled: Bool?
 }
 
 enum SettingsPersistence {
