@@ -68,15 +68,15 @@ struct GameView: View {
                     .padding(.vertical, DesignSystem.Spacing.md)
 
                 if settings.cardDecksEnabled {
-                    if cardDecksStore.totalHeldCount > 0 {
-                        heldCardsBar
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                            .padding(.bottom, DesignSystem.Spacing.xs)
-                    }
-
-                    CardDecksRow(decks: cardDecksStore.decks) { deck in
-                        handleDeckTap(deck)
-                    }
+                    CardDecksRow(
+                        decks: cardDecksStore.decks,
+                        heldCount: cardDecksStore.totalHeldCount,
+                        onTap: { deck in handleDeckTap(deck) },
+                        onHeldTap: {
+                            HapticManager.shared.lightImpact()
+                            showingHeldCards = true
+                        }
+                    )
                     .padding(.horizontal, DesignSystem.Spacing.lg)
                     .padding(.bottom, DesignSystem.Spacing.sm)
                 }
@@ -304,38 +304,6 @@ struct GameView: View {
             HapticManager.shared.warning()
             showingSettings = true
         }
-    }
-
-    /// Compact "N HELD" pill that opens the held-cards sheet. Only
-    /// rendered when there's at least one held card across all decks.
-    private var heldCardsBar: some View {
-        Button {
-            HapticManager.shared.lightImpact()
-            showingHeldCards = true
-        } label: {
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                Image(systemName: "person.fill")
-                    .font(.system(size: 11, weight: .semibold))
-                Text("\(cardDecksStore.totalHeldCount) HELD")
-                    .font(.system(size: 10, weight: .semibold))
-                    .kerning(1.2)
-                Spacer()
-                Image(systemName: "chevron.up")
-                    .font(.system(size: 10, weight: .semibold))
-            }
-            .foregroundColor(.brandPrimary)
-            .padding(.horizontal, DesignSystem.Spacing.md)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .fill(Color.brandPrimary.opacity(0.15))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                            .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1)
-                    )
-            )
-        }
-        .buttonStyle(.plain)
     }
 
     @ViewBuilder
