@@ -13,13 +13,23 @@ Each file is a single deck:
 {
   "name": "Deck name shown in the app",
   "cards": [
-    "Card text 1",
-    "Card text 2"
+    "Plain card text",
+    { "text": "A card that players can hold", "ownable": true }
   ]
 }
 ```
 
-Both `name` and `cards` are required. `cards` must be an array of strings.
+Both `name` and `cards` are required. Each item in `cards` is either:
+
+- a plain string (a normal card that is discarded after being drawn), or
+- an object `{ "text": "...", "ownable": true }` (a card that is held by
+  the player after being drawn instead of discarded).
+
+Ownable cards land in the deck's Held pile when drawn and stay out of
+the shuffle until the player taps **Return** in the in-game Held Cards
+sheet. Use it for things like a Get Out of Jail Free card.
+
+Omitted `ownable` defaults to `false`.
 
 ## Importing into the app
 

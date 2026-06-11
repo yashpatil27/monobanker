@@ -133,16 +133,49 @@ private struct DeckEditorSection: View {
 
             // Existing cards.
             ForEach(Array(deck.cards.enumerated()), id: \.offset) { index, text in
+                let isOwnable = deck.ownableCards.contains(text)
                 Card {
                     HStack(alignment: .top, spacing: DesignSystem.Spacing.md) {
                         Text(text)
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
-                        Spacer(minLength: 0)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Button {
+                            HapticManager.shared.selectionChanged()
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                if isOwnable {
+                                    deck.ownableCards.remove(text)
+                                    // Returning ownership also yanks any
+                                    // currently-held copies of this card so
+                                    // they don't become orphaned.
+                                    deck.heldPile.removeAll { $0 == text }
+                                } else {
+                                    deck.ownableCards.insert(text)
+                                }
+                            }
+                        } label: {
+                            Image(systemName: isOwnable ? "person.fill" : "person")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(isOwnable ? .brandPrimary : .textSecondary)
+                                .frame(width: 32, height: 32)
+                                .background(
+                                    Circle().fill(
+                                        isOwnable
+                                            ? Color.brandPrimary.opacity(0.15)
+                                            : Color.gray.opacity(0.15)
+                                    )
+                                )
+                        }
+                        .accessibilityLabel(isOwnable ? "Ownable card" : "Not ownable")
+                        .buttonStyle(.plain)
+
                         Button {
                             HapticManager.shared.lightImpact()
                             withAnimation(.easeInOut(duration: 0.2)) {
+                                deck.ownableCards.remove(text)
+                                deck.heldPile.removeAll { $0 == text }
                                 _ = deck.cards.remove(at: index)
                             }
                         } label: {
@@ -307,19 +340,28 @@ private struct DeckEditorSection: View {
         }
     }
 
-    /// Common post-decode handler: trims, applies, resets the draw pile.
+    /// Common post-decode handler: trims, applies, resets the draw pile,
+    /// and rebuilds the ownable set from the imported flags. Held cards
+    /// are cleared since the import effectively starts a fresh deck.
     private func applyImported(_ imported: ImportedDeck) {
         let trimmedName = imported.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let cleanedCards = imported.cards
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+        let cleaned: [ImportedCard] = imported.cards
+            .map {
+                ImportedCard(
+                    text: $0.text.trimmingCharacters(in: .whitespacesAndNewlines),
+                    ownable: $0.ownable
+                )
+            }
+            .filter { !$0.text.isEmpty }
         HapticManager.shared.success()
         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             if !trimmedName.isEmpty {
                 deck.name = trimmedName
             }
-            deck.cards = cleanedCards
-            deck.drawPile = []  // force reshuffle on next draw
+            deck.cards = cleaned.map(\.text)
+            deck.ownableCards = Set(cleaned.filter(\.ownable).map(\.text))
+            deck.drawPile = []   // force reshuffle on next draw
+            deck.heldPile = []   // fresh import wipes any old held state
         }
     }
 
@@ -337,9 +379,36 @@ private struct DeckEditorSection: View {
     }
 }
 
-/// Wire-format for an imported deck. `name` is the new deck name to apply;
-/// `cards` is the new card list. Both required.
+/// Wire-format for an imported deck. `name` is the new deck name to
+/// apply; `cards` is the new card list. Each card may be a bare string
+/// (non-ownable shorthand) or an object `{ "text": ..., "ownable": ... }`.
 private struct ImportedDeck: Decodable {
     let name: String
-    let cards: [String]
+    let cards: [ImportedCard]
+}
+
+private struct ImportedCard: Decodable {
+    let text: String
+    let ownable: Bool
+
+    init(text: String, ownable: Bool) {
+        self.text = text
+        self.ownable = ownable
+    }
+
+    enum CodingKeys: String, CodingKey { case text, ownable }
+
+    init(from decoder: Decoder) throws {
+        // Accept either a bare string ("Card text") or an object
+        // ({ "text": "...", "ownable": true }).
+        if let single = try? decoder.singleValueContainer(),
+           let string = try? single.decode(String.self) {
+            self.text = string
+            self.ownable = false
+            return
+        }
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.ownable = try container.decodeIfPresent(Bool.self, forKey: .ownable) ?? false
+    }
 }
