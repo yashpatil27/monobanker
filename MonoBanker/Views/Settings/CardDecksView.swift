@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct CardDecksView: View {
     @Environment(CardDecksStore.self) private var store
@@ -76,10 +77,15 @@ private struct DeckEditorSection: View {
     @Binding var deck: CardDeck
     @State private var newCard: String = ""
     @FocusState private var newCardFocused: Bool
+    @State private var showingImporter = false
+    @State private var showingURLImport = false
+    @State private var urlText: String = ""
+    @State private var isFetching = false
+    @State private var importError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            // Section header with card count.
+            // Section header with card count + import action.
             HStack {
                 Text("DECK")
                     .font(.system(size: 11, weight: .semibold))
@@ -90,6 +96,24 @@ private struct DeckEditorSection: View {
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.textSecondary)
                     .kerning(1.2)
+                Button {
+                    HapticManager.shared.lightImpact()
+                    urlText = ""
+                    showingURLImport = true
+                } label: {
+                    importPill(icon: "link", text: "FROM URL")
+                }
+                .buttonStyle(.plain)
+                .disabled(isFetching)
+
+                Button {
+                    HapticManager.shared.lightImpact()
+                    showingImporter = true
+                } label: {
+                    importPill(icon: "square.and.arrow.down", text: "FROM FILE")
+                }
+                .buttonStyle(.plain)
+                .disabled(isFetching)
             }
 
             // Editable deck name.
@@ -158,6 +182,58 @@ private struct DeckEditorSection: View {
                 }
             }
         }
+        .fileImporter(
+            isPresented: $showingImporter,
+            allowedContentTypes: [.json]
+        ) { result in
+            handleImport(result)
+        }
+        .alert("Import from URL", isPresented: $showingURLImport) {
+            TextField("https://example.com/deck.json", text: $urlText)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.URL)
+                .autocorrectionDisabled()
+            Button("Import") {
+                Task { await importFromURL(urlText) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Paste a link to a JSON deck file. GitHub blob links are auto-converted to raw URLs.")
+        }
+        .alert(
+            "Import failed",
+            isPresented: Binding(
+                get: { importError != nil },
+                set: { if !$0 { importError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { importError = nil }
+        } message: {
+            Text(importError ?? "")
+        }
+    }
+
+    // MARK: - Pill UI
+
+    private func importPill(icon: String, text: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .semibold))
+            Text(text)
+                .font(.system(size: 10, weight: .semibold))
+                .kerning(1.2)
+        }
+        .foregroundColor(.brandPrimary)
+        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .padding(.vertical, 4)
+        .background(
+            Capsule()
+                .fill(Color.brandPrimary.opacity(0.15))
+                .overlay(
+                    Capsule()
+                        .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1)
+                )
+        )
     }
 
     private var canAdd: Bool {
@@ -174,4 +250,96 @@ private struct DeckEditorSection: View {
         }
         newCardFocused = true
     }
+
+    /// Reads the selected JSON file, decodes a single deck, and replaces
+    /// this deck's name + cards + draw pile.
+    private func handleImport(_ result: Result<URL, Error>) {
+        switch result {
+        case .success(let url):
+            guard url.startAccessingSecurityScopedResource() else {
+                importError = "Couldn’t access the file."
+                return
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+            do {
+                let data = try Data(contentsOf: url)
+                let imported = try JSONDecoder().decode(ImportedDeck.self, from: data)
+                applyImported(imported)
+            } catch {
+                importError = "Couldn’t read deck: \(error.localizedDescription)"
+            }
+        case .failure(let error):
+            importError = error.localizedDescription
+        }
+    }
+
+    /// Fetches JSON from a user-pasted URL, decodes it, and applies it to
+    /// the deck. GitHub `https://github.com/.../blob/.../file.json` links
+    /// are auto-rewritten to `raw.githubusercontent.com` so users can
+    /// paste straight from the browser URL bar.
+    @MainActor
+    private func importFromURL(_ raw: String) async {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            importError = "Please paste a URL."
+            return
+        }
+        guard let url = URL(string: trimmed),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else {
+            importError = "That doesn’t look like a valid http(s) URL."
+            return
+        }
+        let target = normalizedGitHubRawURL(url)
+        isFetching = true
+        defer { isFetching = false }
+        do {
+            let (data, response) = try await URLSession.shared.data(from: target)
+            if let http = response as? HTTPURLResponse,
+               !(200..<300).contains(http.statusCode) {
+                importError = "Server returned HTTP \(http.statusCode)."
+                return
+            }
+            let imported = try JSONDecoder().decode(ImportedDeck.self, from: data)
+            applyImported(imported)
+        } catch {
+            importError = "Couldn’t fetch deck: \(error.localizedDescription)"
+        }
+    }
+
+    /// Common post-decode handler: trims, applies, resets the draw pile.
+    private func applyImported(_ imported: ImportedDeck) {
+        let trimmedName = imported.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanedCards = imported.cards
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        HapticManager.shared.success()
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            if !trimmedName.isEmpty {
+                deck.name = trimmedName
+            }
+            deck.cards = cleanedCards
+            deck.drawPile = []  // force reshuffle on next draw
+        }
+    }
+
+    /// Rewrites `https://github.com/<user>/<repo>/blob/<branch>/<path>` to
+    /// `https://raw.githubusercontent.com/<user>/<repo>/<branch>/<path>`.
+    /// Returns the original URL untouched if it isn't a GitHub blob link.
+    private func normalizedGitHubRawURL(_ url: URL) -> URL {
+        guard url.host == "github.com",
+              let blobRange = url.path.range(of: "/blob/") else { return url }
+        let newPath = url.path.replacingCharacters(in: blobRange, with: "/")
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        components?.host = "raw.githubusercontent.com"
+        components?.path = newPath
+        return components?.url ?? url
+    }
+}
+
+/// Wire-format for an imported deck. `name` is the new deck name to apply;
+/// `cards` is the new card list. Both required.
+private struct ImportedDeck: Decodable {
+    let name: String
+    let cards: [String]
 }

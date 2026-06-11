@@ -21,59 +21,13 @@ final class CardDecksStore {
         self.decks = snapshot?.decks ?? CardDecksStore.defaultDecks()
     }
 
-    // ============================================================
-    // WARNING — THIRD-PARTY IP CONTENT BELOW
-    //
-    // The two default decks are currently pre-populated with the
-    // verbatim Monopoly UK "Chance" and "Community Chest" cards. The
-    // text, deck names, and board-location references (Mayfair,
-    // Trafalgar Square, Pall Mall, Kings Cross Station, etc.) are
-    // Hasbro trademarks/copyrights and SHOULD NOT BE SHIPPED to the
-    // App Store as-is. Replace with original/generic content before
-    // submitting any build for review.
-    // ============================================================
+    /// Two empty, user-renameable decks. The app bundle ships no card
+    /// content — users populate decks by editing manually or by importing
+    /// a JSON file from the Files app, iCloud Drive, etc.
     static func defaultDecks() -> [CardDeck] {
-        let chance: [String] = [
-            "Advance to Go (Collect £200)",
-            "Advance to Trafalgar Square. If you pass Go, collect £200",
-            "Advance to Mayfair",
-            "Advance to Pall Mall. If you pass Go, collect £200",
-            "Advance to the nearest Station. If unowned, you may buy it from the Bank. If owned, pay owner twice the rental to which they are otherwise entitled.",
-            "Advance to the nearest Station. If unowned, you may buy it from the Bank. If owned, pay owner twice the rental to which they are otherwise entitled.",
-            "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times amount thrown.",
-            "Bank pays you dividend of £50",
-            "Get Out of Jail Free",
-            "Go Back 3 Spaces",
-            "Go to Jail. Go directly to Jail, do not pass Go, do not collect £200",
-            "Make general repairs on all your property. For each house pay £25. For each hotel pay £100",
-            "Speeding fine £15",
-            "Take a trip to Kings Cross Station. If you pass Go, collect £200",
-            "You have been elected Chairman of the Board. Pay each player £50",
-            "Your building loan matures. Collect £150",
-        ]
-
-        let communityChest: [String] = [
-            "Advance to Go (Collect £200)",
-            "Bank error in your favour. Collect £200",
-            "Doctor’s fee. Pay £50",
-            "From sale of stock you get £50",
-            "Get Out of Jail Free",
-            "Go to Jail. Go directly to jail, do not pass Go, do not collect £200",
-            "Holiday fund matures. Receive £100",
-            "Income tax refund. Collect £20",
-            "It is your birthday. Collect £10 from every player",
-            "Life insurance matures. Collect £100",
-            "Pay hospital fees of £100",
-            "Pay school fees of £50",
-            "Receive £25 consultancy fee",
-            "You are assessed for street repairs. £40 per house. £115 per hotel",
-            "You have won second prize in a beauty contest. Collect £10",
-            "You inherit £100",
-        ]
-
-        return [
-            CardDeck(name: "Chance", cards: chance),
-            CardDeck(name: "Community Chest", cards: communityChest),
+        [
+            CardDeck(name: "Deck 1"),
+            CardDeck(name: "Deck 2"),
         ]
     }
 
