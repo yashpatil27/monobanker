@@ -51,21 +51,21 @@ struct CardDecksRow: View {
 
     private func deckButton(_ deck: CardDeck) -> some View {
         let isEmpty = deck.isEmpty
-        return VStack(spacing: 2) {
+        return VStack(spacing: 4) {
             Text(deck.name)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(isEmpty ? "EMPTY" : "\(deck.remainingCount) LEFT")
-                .font(.system(size: 9, weight: .semibold))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.textSecondary)
                 .kerning(1.2)
                 .monospacedDigit()
                 .contentTransition(.numericText(value: Double(deck.remainingCount)))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(.vertical, DesignSystem.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                 .fill(Color.gray.opacity(DesignSystem.Opacity.subtle))
@@ -83,9 +83,9 @@ struct CardDecksRow: View {
     private func heldButton(count: Int) -> some View {
         ZStack(alignment: .topTrailing) {
             Image(systemName: "person.fill")
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(.textPrimary)
-                .frame(width: 48, height: 44)
+                .frame(width: 58, height: 58)
                 .background(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                         .fill(Color.gray.opacity(DesignSystem.Opacity.subtle))
@@ -96,10 +96,10 @@ struct CardDecksRow: View {
                 )
 
             Text("\(count)")
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(size: 11, weight: .bold))
                 .foregroundColor(.brandPrimary)
                 .monospacedDigit()
-                .frame(minWidth: 18, minHeight: 18)
+                .frame(minWidth: 20, minHeight: 20)
                 .padding(.horizontal, 4)
                 .background(
                     Capsule()
