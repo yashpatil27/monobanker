@@ -93,6 +93,17 @@ final class CardDecksStore {
         decks.reduce(0) { $0 + $1.heldPile.count }
     }
 
+    /// Clears every deck's drawPile and heldPile while preserving the
+    /// user's authored cards, deck names, and ownable flags. Use this
+    /// when the game restarts or ends so held cards don't carry into a
+    /// fresh session.
+    func resetAllPiles() {
+        for index in decks.indices {
+            decks[index].drawPile.removeAll()
+            decks[index].heldPile.removeAll()
+        }
+    }
+
     private func persist() {
         CardDecksPersistence.save(CardDecksSnapshot(decks: decks))
     }

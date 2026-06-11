@@ -178,14 +178,16 @@ struct GameView: View {
             Button("Restart", role: .destructive) {
                 HapticManager.shared.mediumImpact()
                 session.restart()
+                cardDecksStore.resetAllPiles()
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Every balance returns to \(settings.format(session.startingBalance)) and all transactions are cleared.")
+            Text("Every balance returns to \(settings.format(session.startingBalance)), all transactions are cleared, and card decks are reshuffled.")
         }
         .alert("End this game?", isPresented: $showingEndConfirm) {
             Button("End Game", role: .destructive) {
                 HapticManager.shared.mediumImpact()
+                cardDecksStore.resetAllPiles()
                 onEndGame()
             }
             Button("Cancel", role: .cancel) {}

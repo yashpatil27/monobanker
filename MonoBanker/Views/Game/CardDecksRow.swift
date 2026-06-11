@@ -46,6 +46,7 @@ struct CardDecksRow: View {
             }
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: heldCount > 0)
+        .animation(.easeOut(duration: 0.2), value: decks.map(\.remainingCount))
     }
 
     private func deckButton(_ deck: CardDeck) -> some View {
@@ -56,10 +57,12 @@ struct CardDecksRow: View {
                 .foregroundColor(.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            Text(isEmpty ? "EMPTY" : "TAP TO DRAW")
+            Text(isEmpty ? "EMPTY" : "\(deck.remainingCount) LEFT")
                 .font(.system(size: 9, weight: .semibold))
                 .foregroundColor(.textSecondary)
                 .kerning(1.2)
+                .monospacedDigit()
+                .contentTransition(.numericText(value: Double(deck.remainingCount)))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, DesignSystem.Spacing.sm)

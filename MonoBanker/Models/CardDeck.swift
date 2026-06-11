@@ -49,6 +49,18 @@ struct CardDeck: Identifiable, Hashable, Codable {
 
     func isOwnable(_ text: String) -> Bool { ownableCards.contains(text) }
 
+    /// How many cards can still be drawn before the deck reshuffles.
+    /// While the current cycle is in progress this is `drawPile.count`.
+    /// When the pile is empty (initial state, or just after exhausting
+    /// a cycle) it returns what the next reshuffle will produce —
+    /// `cards.count - heldPile.count` — so the UI never reads "0 LEFT"
+    /// when a tap would still yield a card.
+    var remainingCount: Int {
+        drawPile.isEmpty
+            ? max(0, cards.count - heldPile.count)
+            : drawPile.count
+    }
+
     // MARK: - Codable (back-compat)
 
     enum CodingKeys: String, CodingKey {
