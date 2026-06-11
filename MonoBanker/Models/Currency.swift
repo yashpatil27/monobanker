@@ -41,6 +41,26 @@ enum Currency: String, Codable, CaseIterable, Identifiable, Hashable {
     /// Whether the symbol should be rendered with a 180° rotation.
     var isRotated: Bool { self == .invertedWon }
 
+    /// Common currency glyphs we recognise inside free-form text (e.g.
+    /// imported Chance/Community Chest cards) and swap for the user's
+    /// selected display currency.
+    static let knownSymbols: Set<Character> = ["$", "€", "£", "¥", "₩", "₹", "₿"]
+
+    /// Returns `text` with every recognised currency glyph swapped for
+    /// this currency's `symbol`. Note: the inverted-Won variant only
+    /// rotates inside the dedicated `CurrencySymbol` view — inside long
+    /// card body text it appears as a normal Won glyph, since per-glyph
+    /// rotation isn't viable in a multiline `Text`.
+    func rewritingSymbols(in text: String) -> String {
+        guard text.contains(where: Currency.knownSymbols.contains) else { return text }
+        var result = ""
+        result.reserveCapacity(text.count)
+        for char in text {
+            result.append(Currency.knownSymbols.contains(char) ? symbol : String(char))
+        }
+        return result
+    }
+
     /// Human-readable label used in pickers and trailing info rows.
     var displayName: String {
         switch self {

@@ -10,6 +10,7 @@
 import SwiftUI
 
 struct CardDrawSheet: View {
+    @Environment(AppSettings.self) private var settings
     let deckName: String
     let cardText: String
     let onDismiss: () -> Void
@@ -65,7 +66,7 @@ struct CardDrawSheet: View {
     }
 
     private var cardView: some View {
-        Text(cardText)
+        Text(settings.displayCurrency.rewritingSymbols(in: cardText))
             .font(.system(size: 22, weight: .medium, design: .rounded))
             .foregroundColor(.textPrimary)
             .multilineTextAlignment(.center)

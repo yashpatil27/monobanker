@@ -10,6 +10,7 @@
 import SwiftUI
 
 struct HeldCardsSheet: View {
+    @Environment(AppSettings.self) private var settings
     let decks: [CardDeck]
     /// Called when the user taps Return on a card. The closure is
     /// responsible for actually mutating the store; this view stays
@@ -107,7 +108,7 @@ struct HeldCardsSheet: View {
                             .frame(width: 28, height: 28)
                             .background(Circle().fill(Color.brandPrimary.opacity(0.18)))
 
-                        Text(text)
+                        Text(settings.displayCurrency.rewritingSymbols(in: text))
                             .font(.system(size: 14, weight: .regular))
                             .foregroundColor(.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
