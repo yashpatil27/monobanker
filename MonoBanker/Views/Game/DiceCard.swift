@@ -47,7 +47,7 @@ struct DiceCard: View {
             displayRight = right
         }
         .onChange(of: rollID) {
-            roll()
+            roll(toLeft: left, toRight: right)
         }
     }
 
@@ -61,7 +61,7 @@ struct DiceCard: View {
     /// Tumble animation: rotate both dice while rapidly cycling random faces,
     /// then snap to the real `left`/`right` values. Both dice land together
     /// with a single landing haptic.
-    private func roll() {
+    private func roll(toLeft targetLeft: Int, toRight targetRight: Int) {
         withAnimation(.easeOut(duration: 0.85)) {
             rotationLeft += 720
             rotationRight += 720
@@ -74,8 +74,8 @@ struct DiceCard: View {
                 try? await Task.sleep(for: .milliseconds(100))
             }
 
-            displayLeft = left
-            displayRight = right
+            displayLeft = targetLeft
+            displayRight = targetRight
             HapticManager.shared.lightImpact()
         }
     }
